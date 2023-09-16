@@ -2,8 +2,8 @@ import { Column                 } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 
-@Entity({name : 'maquina_elemento'})
-export class MaquinaElemento {
+@Entity()
+export class Rol {
 
     @PrimaryGeneratedColumn()
     id!: number
@@ -11,9 +11,5 @@ export class MaquinaElemento {
     @Column({
         length: 40,
     })
-    descripcion!: string
-
-    @Column()
-    estado! : boolean
-
+    nombre!: string
 }

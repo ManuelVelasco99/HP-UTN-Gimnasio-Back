@@ -2,18 +2,20 @@ import { Column                 } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 
-@Entity({name : 'maquina_elemento'})
-export class MaquinaElemento {
+@Entity()
+export class TipoClase {
 
     @PrimaryGeneratedColumn()
     id!: number
 
     @Column({
-        length: 40,
+        length: 50,
     })
     descripcion!: string
 
-    @Column()
-    estado! : boolean
-
+    @Column({
+        type : "tinyint",
+        unsigned : true 
+    })
+    cupo! : number
 }

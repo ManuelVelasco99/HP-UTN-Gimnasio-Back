@@ -2,6 +2,8 @@ import "reflect-metadata"
 import { DataSource      } from "typeorm"
 import   dotenv            from 'dotenv';
 import { MaquinaElemento } from "./entity/MaquinaElemento"
+import { Rol             } from "./entity/Rol";
+import { TipoClase       } from "./entity/TipoClase";
 
 dotenv.config();
 
@@ -14,7 +16,11 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: true,
-    entities: [MaquinaElemento],
+    entities: [
+        MaquinaElemento,
+        Rol,
+        TipoClase
+    ],
     subscribers: [],
     migrations: [],
 })
