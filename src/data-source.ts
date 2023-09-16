@@ -4,6 +4,7 @@ import   dotenv            from 'dotenv';
 import { MaquinaElemento } from "./entity/MaquinaElemento"
 import { Rol             } from "./entity/Rol";
 import { TipoClase       } from "./entity/TipoClase";
+import { TipoEjercicio   } from "./entity/TipoEjercicio";
 
 dotenv.config();
 
@@ -19,7 +20,8 @@ export const AppDataSource = new DataSource({
     entities: [
         MaquinaElemento,
         Rol,
-        TipoClase
+        TipoClase,
+        TipoEjercicio
     ],
     subscribers: [],
     migrations: [],
