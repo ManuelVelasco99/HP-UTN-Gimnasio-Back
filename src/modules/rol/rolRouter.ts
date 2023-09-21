@@ -16,3 +16,8 @@ rolRouter.get('/listar', (req, res) => {
 rolRouter.post('/agregar', (req, res) => {
     RolController.agregar(req, res);
 });
+
+
+rolRouter.post('/:id/actualizar', (req, res) => {
+    RolController.actualizar(req, res);
+});
