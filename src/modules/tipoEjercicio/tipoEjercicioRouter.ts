@@ -16,3 +16,7 @@ tipoEjercicioRouter.get('/listar', (req, res) => {
 tipoEjercicioRouter.post('/agregar', (req, res) => {
     TipoEjercicioController.agregar(req, res);
 });
+
+tipoEjercicioRouter.put('/actualizar', (req, res) => {
+    TipoEjercicioController.actualizar(req, res);
+});
