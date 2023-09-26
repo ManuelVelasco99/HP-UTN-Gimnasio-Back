@@ -52,7 +52,7 @@ export class TipoEjercicioController {
         tipoEjercicio.descripcion = req.body.descripcion;
         tipoEjercicio.multimedia = req.body.multimedia;
         ///busco la id de maquinaElemento del tipo ejercicio
-        let maquinaElementoId = req.body.maquiElementoId
+        let maquinaElementoId = req.body.maquinaElementoId
         let maquinaElemento : MaquinaElemento | null = null;
         if(maquinaElementoId){
             maquinaElemento = await AppDataSource.manager.findOneBy(MaquinaElemento,{ id: maquinaElementoId });
