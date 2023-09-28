@@ -21,7 +21,8 @@ export const AppDataSource = new DataSource({
         MaquinaElemento,
         Rol,
         TipoClase,
-        TipoEjercicio
+        TipoEjercicio,
+        Nota
     ],
     subscribers: [],
     migrations: [],
