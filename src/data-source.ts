@@ -5,6 +5,7 @@ import { MaquinaElemento } from "./entity/MaquinaElemento"
 import { Rol             } from "./entity/Rol";
 import { TipoClase       } from "./entity/TipoClase";
 import { TipoEjercicio   } from "./entity/TipoEjercicio";
+import { Nota            } from "./entity/Nota";
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ export const AppDataSource = new DataSource({
         Rol,
         TipoClase,
         TipoEjercicio,
-        Nota
+        Nota,
     ],
     subscribers: [],
     migrations: [],
