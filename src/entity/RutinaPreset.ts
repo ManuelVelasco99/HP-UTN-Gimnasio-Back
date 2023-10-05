@@ -1,6 +1,8 @@
-import { Column, OneToMany                 } from "typeorm"
+import { Column                 } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
+import { OneToMany              } from "typeorm"
+import { Ejercicio              } from "./Ejercicio"
 ///import { TipoEjercicio } from "./TipoEjercicio" //// ACA IMPORTAR EL EJERCICIO
 
 @Entity({name : 'rutina_preset'})
@@ -19,4 +21,8 @@ export class RutinaPreset {
     })
     fecha_creacion! : Date
 
+    @OneToMany(() => Ejercicio , (ejercicio) => ejercicio.rutinaPreset)
+    ejercicio!: Ejercicio
+
+    
 }

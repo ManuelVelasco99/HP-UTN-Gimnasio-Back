@@ -1,8 +1,12 @@
-import { Column, Double                 } from "typeorm"
+import { Column                 } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
+import { Double                 } from "typeorm"
+import { ManyToOne              } from "typeorm"
+import { Ejercicio              } from "./Ejercicio"
 
-@Entity()
+
+@Entity({name : 'nota'})
 export class Nota {
 
     @PrimaryGeneratedColumn()
@@ -28,7 +32,7 @@ export class Nota {
     })
     comentario!: string
 
-    //@ManyToOne(() => Ejercicio, (ejercicio) => ejercicio.nota)
-    //ejercicio!: Ejercicio
+    @ManyToOne(() => Ejercicio, (ejercicio) => ejercicio.nota)
+    ejercicio!: Ejercicio
 
 }

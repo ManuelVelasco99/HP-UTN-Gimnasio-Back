@@ -9,6 +9,7 @@ import { Usuario } from "./entity/Usuario";
 import { RutinaPreset } from "./entity/RutinaPreset";
 import { PrecioCuota } from "./entity/PrecioCuota";
 import { Nota            } from "./entity/Nota";
+import { Ejercicio            } from "./entity/Ejercicio";
 
 
 dotenv.config();
@@ -31,6 +32,7 @@ export const AppDataSource = new DataSource({
         RutinaPreset,
         PrecioCuota,
         Nota,
+        Ejercicio,
     ],
     subscribers: [],
     migrations: [],

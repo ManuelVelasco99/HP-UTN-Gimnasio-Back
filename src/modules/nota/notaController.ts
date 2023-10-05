@@ -1,4 +1,5 @@
 import { AppDataSource } from "../../data-source";
+import { Ejercicio } from "../../entity/Ejercicio";
 import { Nota           } from "../../entity/Nota";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
@@ -22,16 +23,16 @@ export class NotaController {
 
         nota = await AppDataSource.manager.save(nota);
 
-
-        /*let ejercicio!: Ejercicio;
+        /* No se como modificar el ejercicio
+        let ejercicio!: Ejercicio;
         if(ejercicio){
-            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
+            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicio.id });
         }
         nota.ejercicio=ejercicio;
-        */
         
         nota = await AppDataSource.manager.save(nota);
-        
+        */
+
         res.json({
             data : nota
         })
