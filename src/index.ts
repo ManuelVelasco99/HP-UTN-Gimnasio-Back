@@ -9,12 +9,17 @@ import { rolRouter             } from "./modules/rol/rolRouter";
 import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
 import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
 import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
+import cors from 'cors';
 
 
 dotenv.config();
 const app: Express = express();
 app.use(express.urlencoded());
 const port = process.env.PORT;
+app.use(cors());
+//app.use((cors as (options: cors.CorsOptions) => express.RequestHandler)({}));
+
+app.use(express.json());
 
 app.get('/', (req: Request, res: Response) => {
     res.json({data:'Express + TypeScript Server'});
