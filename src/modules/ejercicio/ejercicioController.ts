@@ -20,24 +20,22 @@ export class EjercicioController {
         ejercicio.repeticiones=req.body.repeticiones;
         ejercicio.diaRutina=req.body.diaRutina;
         ejercicio.series=req.body.series;
+        let idTipoEjercicio= req.body.idTipoEjercicio;
 
-        ejercicio = await AppDataSource.manager.save(ejercicio);
-
-        /* No se como modificar el tipo de ejercicio
-        let tipoEjercicio!: TipoEjercicio;
-        if(tipoEjercicio){
-            tipoEjercicio = await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: tipoEjercicio.id });
-        }
-        ejercicio.tiposEjercicio=tipoEjercicio;
         
+        let tipoEjercicio : TipoEjercicio | null = null;
+        tipoEjercicio= await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: idTipoEjercicio });
+        if(tipoEjercicio){
+            ejercicio.tiposEjercicio=tipoEjercicio;
+        }
+        //else{}  falta en caso de que traiga Null
+ 
         ejercicio = await AppDataSource.manager.save(ejercicio);
-        */
 
         res.json({
             data : ejercicio
         })
     }
-    
     
     public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
         let ejercicioId = req.params.id;
@@ -49,17 +47,16 @@ export class EjercicioController {
         ejercicio.repeticiones=req.body.repeticiones;
         ejercicio.diaRutina=req.body.diaRutina;
         ejercicio.series=req.body.series;
-        
-        /*
-        ///busco la id de ejercicio de la nota
-        let ejercicioId = req.body.ejercicioId
-        let ejercicio : Ejercicio | null = null;
-        if(ejercicioId){
-            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
-        }
-        nota.ejercicio = ejercicio;
-        */
+        let idTipoEjercicio= req.body.idTipoEjercicio;
 
+        
+        let tipoEjercicio : TipoEjercicio | null = null;
+        tipoEjercicio= await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: idTipoEjercicio });
+        if(tipoEjercicio){
+            ejercicio.tiposEjercicio=tipoEjercicio;
+        }
+        //else{}  falta en caso de que traiga Null
+ 
         ejercicio = await AppDataSource.manager.save(ejercicio);
 
         res.json({

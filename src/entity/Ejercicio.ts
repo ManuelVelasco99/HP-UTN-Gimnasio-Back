@@ -6,7 +6,7 @@ import { OneToMany              } from "typeorm"
 import { TipoEjercicio          } from "./TipoEjercicio"
 import { Nota                   } from "./Nota"
 import { RutinaPreset           } from "./RutinaPreset"
-//import { Rutina                 } from "./RutinaPreset"
+//import { Rutina                 } from "./Rutina"
 
 @Entity({name : 'ejercicio'})
 export class Ejercicio {
