@@ -8,6 +8,7 @@ import { Response              } from 'express';
 import { rolRouter             } from "./modules/rol/rolRouter";
 import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
 import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
+import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
 
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use('/maquina-elemento', maquinaElementoRouter);
 app.use('/rol', rolRouter);
 app.use('/tipo-clase', tipoclaseRouter);
 app.use('/tipo-ejercicio', tipoEjercicioRouter);
+app.use('/usuario', usuarioRouter);
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
