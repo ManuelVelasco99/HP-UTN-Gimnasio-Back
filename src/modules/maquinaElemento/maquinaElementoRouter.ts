@@ -20,3 +20,7 @@ maquinaElementoRouter.post('/agregar', (req, res) => {
 maquinaElementoRouter.get('/:id/obtener', (req, res) => {
     MaquinaElementoController.obtener(req, res);
 });
+
+maquinaElementoRouter.post('/:id/editar', (req, res) => {
+    MaquinaElementoController.editar(req, res);
+});
