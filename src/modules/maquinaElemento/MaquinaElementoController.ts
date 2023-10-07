@@ -13,6 +13,15 @@ export class MaquinaElementoController {
         })
     }
 
+    public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
+        let maquinaElementoId = req.params.id;
+        let maquinaElemento = await AppDataSource.manager.findOneBy(MaquinaElemento,{ id: maquinaElementoId });
+
+        res.json({
+            data : maquinaElemento
+        })
+    }
+
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let maquinaElemento = new MaquinaElemento();
 
