@@ -16,3 +16,7 @@ maquinaElementoRouter.get('/listar', (req, res) => {
 maquinaElementoRouter.post('/agregar', (req, res) => {
     MaquinaElementoController.agregar(req, res);
 });
+
+maquinaElementoRouter.get('/:id/obtener', (req, res) => {
+    MaquinaElementoController.obtener(req, res);
+});
