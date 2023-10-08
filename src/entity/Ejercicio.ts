@@ -6,7 +6,7 @@ import { OneToMany              } from "typeorm"
 import { TipoEjercicio          } from "./TipoEjercicio"
 import { Nota                   } from "./Nota"
 import { RutinaPreset           } from "./RutinaPreset"
-//import { Rutina                 } from "./Rutina"
+import { Rutina                 } from "./Rutina"
 
 @Entity({name : 'ejercicio'})
 export class Ejercicio {
@@ -41,7 +41,7 @@ export class Ejercicio {
     @ManyToOne(() => RutinaPreset , (rutinaPreset) => rutinaPreset.ejercicio)
     rutinaPreset!: RutinaPreset | null
 
-    //@ManyToOne(() => Rutina , (rutina) => rutina.ejercicio)
-    //rutina!: Rutina | null
+    @ManyToOne(() => Rutina , (rutina) => rutina.ejercicio)
+    rutina!: Rutina | null
 
 }

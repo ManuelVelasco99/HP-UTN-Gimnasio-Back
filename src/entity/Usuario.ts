@@ -1,7 +1,10 @@
-import { Column, ManyToOne      } from "typeorm"
+import { Column                 } from "typeorm"
+import { ManyToOne              } from "typeorm"
+import { OneToMany              } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
-import { Rol } from "./Rol"
+import { Rol                    } from "./Rol"
+import { Rutina                 } from "./Rutina"
 
 @Entity({name : 'usuario'})
 export class Usuario {
@@ -45,8 +48,8 @@ export class Usuario {
     @ManyToOne( () => Rol, (rol) => rol.usuarios)
     rol!: Rol | null
 
-
-
+    @OneToMany(() => Rutina , (rutina) => rutina.socio)
+    rutina!: Rutina
     
 
 }
