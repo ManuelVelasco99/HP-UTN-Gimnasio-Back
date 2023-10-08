@@ -31,7 +31,7 @@ export class ClaseController {
         clase.tipoClase = tipoClase;
 
         let usuario : Usuario | null = null;
-        if(usuario){
+        if(usuarioId){
             usuario = await AppDataSource.manager.findOneBy(Usuario, { id: usuarioId});
         }
         clase.usuario = usuario
@@ -47,6 +47,7 @@ export class ClaseController {
         let claseId = req.params.id;
         let clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
         if(!clase){
+            res.status(404).json({ error: 'Clase no encontrada' });
             return;
         }
         clase.fecha = req.body.fecha;
