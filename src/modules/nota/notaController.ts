@@ -20,18 +20,16 @@ export class NotaController {
         nota.fecha = req.body.fecha;
         nota.peso= req.body.peso;
         nota.comentario=req.body.comentario;
+        let idEjercicio= req.body.idEjercicio;
 
         nota = await AppDataSource.manager.save(nota);
 
-        /* No se como modificar el ejercicio
-        let ejercicio!: Ejercicio;
+        let ejercicio : Ejercicio | null = null;
+        ejercicio= await AppDataSource.manager.findOneBy(Ejercicio,{ id: idEjercicio });
         if(ejercicio){
-            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicio.id });
+            nota.ejercicio=ejercicio;
         }
-        nota.ejercicio=ejercicio;
-        
-        nota = await AppDataSource.manager.save(nota);
-        */
+        //else{}  falta en caso de que traiga Null
 
         res.json({
             data : nota
@@ -48,17 +46,14 @@ export class NotaController {
         nota.fecha = req.body.fecha;
         nota.peso= req.body.peso;
         nota.comentario=req.body.comentario;
-        
-        /*
-        ///busco la id de ejercicio de la nota
-        let ejercicioId = req.body.ejercicioId
-        let ejercicio : Ejercicio | null = null;
-        if(ejercicioId){
-            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
-        }
-        nota.ejercicio = ejercicio;
-        */
+        let idEjercicio= req.body.idEjercicio;
 
+
+        let ejercicio : Ejercicio | null = null;
+        ejercicio= await AppDataSource.manager.findOneBy(Ejercicio,{ id: idEjercicio });
+        if(ejercicio){
+            nota.ejercicio=ejercicio;
+        }
         nota = await AppDataSource.manager.save(nota);
 
         res.json({
