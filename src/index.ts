@@ -1,4 +1,5 @@
 import { AppDataSource         } from "./data-source"
+import { claseRouter       } from "./modules/clase/claseRouter";
 import   dotenv                  from 'dotenv';
 import   express                 from 'express';
 import { Express               } from 'express';
@@ -31,6 +32,7 @@ app.use('/rol', rolRouter);
 app.use('/tipo-clase', tipoclaseRouter);
 app.use('/tipo-ejercicio', tipoEjercicioRouter);
 app.use('/usuario', usuarioRouter);
+app.use('/clase', claseRouter);
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
