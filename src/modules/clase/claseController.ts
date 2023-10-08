@@ -53,7 +53,7 @@ export class ClaseController {
         clase.horario_inicio = req.body.horario_inicio;
         clase.horario_fin = req.body.horario_fin;
         ///busco la id de tipoClase de la clase
-        let tipoClaseId = req.body.tipoClaseId
+        let tipoClaseId = req.body.tipoClase
         let tipoClase : TipoClase | null = null;
         if(tipoClaseId){
             tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
@@ -61,7 +61,7 @@ export class ClaseController {
         clase.tipoClase = tipoClase;
 
         ///busco la id del profesor de la clase
-        let usuarioId = req.body.usuarioId
+        let usuarioId = req.body.usuario
         let usuario : Usuario | null = null;
         if(usuarioId){
             usuario = await AppDataSource.manager.findOneBy(Usuario,{ id: usuarioId });
