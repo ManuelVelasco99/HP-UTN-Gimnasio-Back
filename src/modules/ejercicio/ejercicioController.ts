@@ -3,6 +3,8 @@ import { Ejercicio     } from "../../entity/Ejercicio";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import { TipoEjercicio } from "../../entity/TipoEjercicio";
+import { Rutina        } from "../../entity/Rutina";
+import { RutinaPreset  } from "../../entity/RutinaPreset";
 
 export class EjercicioController {
 
@@ -14,14 +16,41 @@ export class EjercicioController {
         })
     }
 
-    public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let ejercicio = new Ejercicio();
+    public static async agregar(
+        ejercicioRepeticiones:string,
+        ejercicioDiaRutina:number,
+        ejercicioSeries:number,
+        rutinaId: number | null,
+        rutinaPresetId:number | null,
+        tipoEjercicioId:number,
+    ) : Promise<Ejercicio> {
 
-        ejercicio.repeticiones=req.body.repeticiones;
-        ejercicio.diaRutina=req.body.diaRutina;
-        ejercicio.series=req.body.series;
-        let idTipoEjercicio= req.body.idTipoEjercicio;
+        let ejercicio= new Ejercicio();
 
+        ejercicio.repeticiones=ejercicioRepeticiones;
+        ejercicio.diaRutina=ejercicioDiaRutina;
+        ejercicio.series=ejercicioSeries;
+
+        if (rutinaId){
+            let rutina: Rutina | null = null;
+            rutina= await AppDataSource.manager.findOneBy(Rutina,{id: rutinaId});
+            if(rutina){
+                ejercicio.rutina=rutina;
+            }
+            //else{}  falta en caso de que traiga Null
+        }
+
+        if (rutinaPresetId){
+            let rutinaPreset: RutinaPreset | null = null;
+            rutinaPreset= await AppDataSource.manager.findOneBy(RutinaPreset,{id: rutinaPresetId});
+            if(rutinaPreset){
+                ejercicio.rutinaPreset=rutinaPreset;
+            }
+            //else{}  falta en caso de que traiga Null
+        }
+
+        
+        let idTipoEjercicio= tipoEjercicioId;
         
         let tipoEjercicio : TipoEjercicio | null = null;
         tipoEjercicio= await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: idTipoEjercicio });
@@ -32,23 +61,48 @@ export class EjercicioController {
  
         ejercicio = await AppDataSource.manager.save(ejercicio);
 
-        res.json({
-            data : ejercicio
-        })
+        return ejercicio
     }
     
-    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let ejercicioId = req.params.id;
+    public static async actualizar(
+        ejercicioId:number,
+        ejercicioRepeticiones:string,
+        ejercicioDiaRutina:number,
+        ejercicioSeries:number,
+        rutinaId: number | null,
+        rutinaPresetId:number | null,
+        tipoEjercicioId:number,
+    ) : Promise<Ejercicio | null> {
+
         let ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
         if(!ejercicio){
-            return;
+            return null;
         }
         
-        ejercicio.repeticiones=req.body.repeticiones;
-        ejercicio.diaRutina=req.body.diaRutina;
-        ejercicio.series=req.body.series;
-        let idTipoEjercicio= req.body.idTipoEjercicio;
+        ejercicio.repeticiones=ejercicioRepeticiones;
+        ejercicio.diaRutina=ejercicioDiaRutina;
+        ejercicio.series=ejercicioSeries;
 
+        if (rutinaId){
+            let rutina: Rutina | null = null;
+            rutina= await AppDataSource.manager.findOneBy(Rutina,{id: rutinaId});
+            if(rutina){
+                ejercicio.rutina=rutina;
+            }
+            //else{}  falta en caso de que traiga Null
+        }
+
+        if (rutinaPresetId){
+            let rutinaPreset: RutinaPreset | null = null;
+            rutinaPreset= await AppDataSource.manager.findOneBy(RutinaPreset,{id: rutinaPresetId});
+            if(rutinaPreset){
+                ejercicio.rutinaPreset=rutinaPreset;
+            }
+            //else{}  falta en caso de que traiga Null
+        }
+
+        
+        let idTipoEjercicio= tipoEjercicioId;
         
         let tipoEjercicio : TipoEjercicio | null = null;
         tipoEjercicio= await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: idTipoEjercicio });
@@ -59,9 +113,8 @@ export class EjercicioController {
  
         ejercicio = await AppDataSource.manager.save(ejercicio);
 
-        res.json({
-            data : ejercicio
-        })
+        return ejercicio;
+
     }
 
 }
