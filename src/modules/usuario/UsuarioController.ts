@@ -15,18 +15,17 @@ export class UsuarioController {
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let usuario = new Usuario();
         let fechaHoy = new Date();
-       // precioCuota.monto = req.body.monto;
-       // precioCuota.fecha_desde = req.body.fecha_desde;
-       // precioCuota.estado = true;    
+          usuario.contrasenia = req.body.contrasenia;    
           usuario.dni = req.body.dni;
           usuario.nombre = req.body.nombre;
           usuario.apellido = req.body.apellido;
           usuario.telefono = req.body.telefono;
           usuario.fecha_comienzo = fechaHoy;
           usuario.dni = req.body.dni;
-
-
-       // precioCuota = await AppDataSource.manager.save(precioCuota);
+          usuario.fecha_nacimiento = req.body.fecha_nacimiento;
+          usuario.email = req.body.email;
+          usuario.estado = true;
+          usuario = await AppDataSource.manager.save(usuario);
 
         res.json({
             data : usuario
