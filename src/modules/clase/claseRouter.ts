@@ -17,6 +17,6 @@ claseRouter.post('/agregar', (req, res) => {
     ClaseController.agregar(req, res);
 });
 
-claseRouter.put('/:id/actualizar', (req, res) => {
+claseRouter.post('/:id/actualizar', (req, res) => {
     ClaseController.actualizar(req, res);
 });
