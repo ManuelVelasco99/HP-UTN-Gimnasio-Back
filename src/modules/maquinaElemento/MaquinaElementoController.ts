@@ -13,6 +13,15 @@ export class MaquinaElementoController {
         })
     }
 
+    public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
+        let maquinaElementoId = req.params.id;
+        let maquinaElemento = await AppDataSource.manager.findOneBy(MaquinaElemento,{ id: maquinaElementoId });
+
+        res.json({
+            data : maquinaElemento
+        })
+    }
+
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let maquinaElemento = new MaquinaElemento();
 
@@ -25,4 +34,20 @@ export class MaquinaElementoController {
             data : maquinaElemento
         })
     }
-}
+
+    public static async editar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let maquinaElementoId = req.params.id;
+        let maquinaElemento = await AppDataSource.manager.findOneBy(MaquinaElemento,{ id: maquinaElementoId });
+        if(!maquinaElemento){
+            return;
+        }
+
+        maquinaElemento.descripcion = req.body.descripcion;
+
+        maquinaElemento = await AppDataSource.manager.save(maquinaElemento);
+
+        res.json({
+            data : maquinaElemento
+        })
+    }
+} 

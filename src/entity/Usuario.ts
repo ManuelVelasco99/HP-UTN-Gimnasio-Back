@@ -5,6 +5,11 @@ import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 import { Rol                    } from "./Rol"
 import { Rutina                 } from "./Rutina"
+import { Column, ManyToOne, OneToMany      } from "typeorm"
+import { Entity                 } from "typeorm"
+import { PrimaryGeneratedColumn } from "typeorm"
+import { Rol } from "./Rol"
+import { Clase } from "./Clase"
 
 @Entity({name : 'usuario'})
 export class Usuario {
@@ -50,6 +55,7 @@ export class Usuario {
 
     @OneToMany(() => Rutina , (rutina) => rutina.socio)
     rutina!: Rutina
-    
 
+    @OneToMany(() => Clase, (clase) => clase.usuario)
+    clases! : Clase[] | null
 }
