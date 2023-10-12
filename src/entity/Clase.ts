@@ -1,8 +1,9 @@
 import { Column                 } from "typeorm"
 import { Entity                 } from "typeorm"
-import { ManyToOne              } from "typeorm"
+import { ManyToOne, OneToMany   } from "typeorm"
 import { TipoClase        } from "./TipoClase"
 import { Usuario        } from "./Usuario"
+import { SocioClase        } from "./SocioClase"
 import { PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
@@ -31,5 +32,8 @@ export class Clase {
 
     @ManyToOne(() => Usuario, (usuario) => usuario.clases)
     usuario!: Usuario | null
+
+    @OneToMany(() => SocioClase, (socioClase) => socioClase.clase)
+    sociosClases! : SocioClase[] | null
 
 }
