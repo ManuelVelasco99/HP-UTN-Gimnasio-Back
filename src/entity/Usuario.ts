@@ -1,3 +1,10 @@
+import { Column                 } from "typeorm"
+import { ManyToOne              } from "typeorm"
+import { OneToMany              } from "typeorm"
+import { Entity                 } from "typeorm"
+import { PrimaryGeneratedColumn } from "typeorm"
+import { Rol                    } from "./Rol"
+import { Rutina                 } from "./Rutina"
 import { Column, ManyToOne, OneToMany      } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
@@ -46,11 +53,9 @@ export class Usuario {
     @ManyToOne( () => Rol, (rol) => rol.usuarios)
     rol!: Rol | null
 
+    @OneToMany(() => Rutina , (rutina) => rutina.socio)
+    rutina!: Rutina
+
     @OneToMany(() => Clase, (clase) => clase.usuario)
     clases! : Clase[] | null
-
-
-
-    
-
 }

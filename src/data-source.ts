@@ -7,10 +7,12 @@ import { TipoClase       } from "./entity/TipoClase";
 import { Clase       } from "./entity/Clase";
 import { SocioClase       } from "./entity/SocioClase";
 import { TipoEjercicio   } from "./entity/TipoEjercicio";
-import { Usuario } from "./entity/Usuario";
-import { RutinaPreset } from "./entity/RutinaPreset";
-import { PrecioCuota } from "./entity/PrecioCuota";
+import { Usuario         } from "./entity/Usuario";
+import { Rutina          } from "./entity/Rutina";
+import { RutinaPreset    } from "./entity/RutinaPreset";
+import { PrecioCuota     } from "./entity/PrecioCuota";
 import { Nota            } from "./entity/Nota";
+import { Ejercicio       } from "./entity/Ejercicio";
 
 
 dotenv.config();
@@ -32,9 +34,11 @@ export const AppDataSource = new DataSource({
         SocioClase,
         TipoEjercicio,
         Usuario,
+        Rutina,
         RutinaPreset,
         PrecioCuota,
         Nota,
+        Ejercicio,
     ],
     subscribers: [],
     migrations: [],

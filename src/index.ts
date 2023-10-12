@@ -11,6 +11,9 @@ import { rolRouter             } from "./modules/rol/rolRouter";
 import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
 import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
 import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
+import { rutinaRouter          } from "./modules/rutina/rutinaRouter";
+import { rutinaPresetRouter    } from "./modules/rutinaPreset/rutinaPresetRouter";
+import bodyParser from "body-parser";
 import cors from 'cors';
 
 
@@ -18,6 +21,8 @@ dotenv.config();
 const app: Express = express();
 app.use(express.urlencoded());
 const port = process.env.PORT;
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
 app.use(cors());
 //app.use((cors as (options: cors.CorsOptions) => express.RequestHandler)({}));
 
@@ -33,6 +38,8 @@ app.use('/rol', rolRouter);
 app.use('/tipo-clase', tipoclaseRouter);
 app.use('/tipo-ejercicio', tipoEjercicioRouter);
 app.use('/usuario', usuarioRouter);
+app.use('/rutina', rutinaRouter);
+app.use('/rutinaPreset', rutinaPresetRouter);
 app.use('/clase', claseRouter);
 app.use('/socio-clase', socioClaseRouter);
 

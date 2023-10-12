@@ -1,7 +1,9 @@
-import { AppDataSource } from "../../data-source";
+import { Double         } from "typeorm";
+import { AppDataSource  } from "../../data-source";
 import { Nota           } from "../../entity/Nota";
-import { Request       } from "express-serve-static-core";
-import { Response      } from "express-serve-static-core";
+import { Ejercicio      } from "../../entity/Ejercicio";
+import { Request        } from "express-serve-static-core";
+import { Response       } from "express-serve-static-core";
 
 export class NotaController {
 
@@ -13,56 +15,59 @@ export class NotaController {
         })
     }
 
-    public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
+    public static async agregar(
+        notaFecha : Date,
+        notaPeso : Double,
+        notaComentario : string,
+        ejercicioId : number,
+        ) : Promise<Nota> {
+        
         let nota = new Nota();
 
-        nota.fecha = req.body.fecha;
-        nota.peso= req.body.peso;
-        nota.comentario=req.body.comentario;
-
-        nota = await AppDataSource.manager.save(nota);
-
-
-        /*let ejercicio!: Ejercicio;
+        nota.fecha = notaFecha;
+        nota.peso= notaPeso;
+        nota.comentario=notaComentario;
+ 
+        let ejercicio : Ejercicio | null = null;
+        ejercicio= await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
         if(ejercicio){
-            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
+            nota.ejercicio=ejercicio;
         }
-        nota.ejercicio=ejercicio;
-        */
+        //else{}  falta en caso de que traiga Null
         
         nota = await AppDataSource.manager.save(nota);
-        
-        res.json({
-            data : nota
-        })
+       
+        return nota
     }
     
     
-    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let notaId = req.params.id;
+    public static async actualizar(
+        notaId: number,
+        notaFecha : Date,
+        notaPeso : Double,
+        notaComentario : string,
+        ejercicioId : number,        
+    ) : Promise<Nota | null> {
+
         let nota = await AppDataSource.manager.findOneBy(Nota,{ id: notaId });
         if(!nota){
-            return;
+            return null;
         }
-        nota.fecha = req.body.fecha;
-        nota.peso= req.body.peso;
-        nota.comentario=req.body.comentario;
+
+        nota.fecha = notaFecha;
+        nota.peso= notaPeso;
+        nota.comentario=notaComentario;
         
-        /*
-        ///busco la id de ejercicio de la nota
-        let ejercicioId = req.body.ejercicioId
         let ejercicio : Ejercicio | null = null;
-        if(ejercicioId){
-            ejercicio = await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
+        ejercicio= await AppDataSource.manager.findOneBy(Ejercicio,{ id: ejercicioId });
+        if(ejercicio){
+            nota.ejercicio=ejercicio;
         }
-        nota.ejercicio = ejercicio;
-        */
-
+        //else{}  falta en caso de que traiga Null
+        
         nota = await AppDataSource.manager.save(nota);
-
-        res.json({
-            data : nota
-        })
+        
+        return nota
     }
 
 }
