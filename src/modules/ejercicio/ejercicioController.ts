@@ -59,9 +59,7 @@ export class EjercicioController {
         }
         //else{}  falta en caso de que traiga Null
  
-        ejercicio = await AppDataSource.manager.save(ejercicio);
-
-        return ejercicio
+        return await AppDataSource.manager.save(ejercicio);        
     }
     
     public static async actualizar(

@@ -23,7 +23,7 @@ export class Rutina {
     fecha_creacion! : Date
 
     @OneToMany(() => Ejercicio , (ejercicio) => ejercicio.rutina)
-    ejercicio!: Ejercicio | null
+    ejercicios!: Ejercicio[] | null
 
     @ManyToOne(() => Usuario , (socio) => socio.rutina)
     socio!: Usuario

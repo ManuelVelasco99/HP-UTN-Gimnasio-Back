@@ -41,7 +41,7 @@ export class Ejercicio {
     @ManyToOne(() => RutinaPreset , (rutinaPreset) => rutinaPreset.ejercicio)
     rutinaPreset!: RutinaPreset | null
 
-    @ManyToOne(() => Rutina , (rutina) => rutina.ejercicio)
+    @ManyToOne(() => Rutina , (rutina) => rutina.ejercicios)
     rutina!: Rutina | null
 
 }

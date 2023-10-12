@@ -1,8 +1,10 @@
-import { AppDataSource   } from "../../data-source";
-import { Rutina          } from "../../entity/Rutina";
-import { Usuario         } from "../../entity/Usuario";
-import { Request         } from "express-serve-static-core";
-import { Response        } from "express-serve-static-core";
+import { AppDataSource       } from "../../data-source";
+import { Ejercicio           } from "../../entity/Ejercicio";
+import { EjercicioController } from "../ejercicio/ejercicioController";
+import { Request             } from "express-serve-static-core";
+import { Response            } from "express-serve-static-core";
+import { Rutina              } from "../../entity/Rutina";
+import { Usuario             } from "../../entity/Usuario";
 
 export class RutinaController {
 
@@ -15,11 +17,11 @@ export class RutinaController {
     }
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
+
         let rutina = new Rutina();
 
         rutina.nombre = req.body.nombre;
-        rutina.fecha_creacion = req.body.fecha_creacion;
-
+        rutina.fecha_creacion = new Date();
 
         let socioId=req.body.socioId;
 
@@ -42,6 +44,21 @@ export class RutinaController {
 
         rutina = await AppDataSource.manager.save(rutina);
 
+        let ejercicios : Ejercicio[] = [];
+
+        for (const ejercicio of req.body.ejercicios) {
+            let ejercicioInsertado = await EjercicioController.agregar(
+                ejercicio.repeticiones,
+                ejercicio.diaRutina,
+                ejercicio.series,
+                rutina.id,
+                null,
+                ejercicio.tiposEjercicio.id,
+            );
+            ejercicios.push(ejercicioInsertado);
+        }
+
+        rutina.ejercicios = ejercicios;
         res.json({
             data : rutina
         })
