@@ -12,9 +12,11 @@ usuarioRouter.get('/', (req, res) => {
 
 usuarioRouter.get('/listar', (req,res) => {
     UsuarioController.listar(req,res);
-})
+});
 usuarioRouter.post('/agregar', (req,res)=>{
     UsuarioController.agregar(req, res);
-})
-
+});
+usuarioRouter.post('/:id/editar', (req,res) => {
+    UsuarioController.editar(req, res);
+});
 
