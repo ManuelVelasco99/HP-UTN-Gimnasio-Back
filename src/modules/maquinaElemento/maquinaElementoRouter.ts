@@ -24,3 +24,7 @@ maquinaElementoRouter.get('/:id/obtener', (req, res) => {
 maquinaElementoRouter.post('/:id/editar', (req, res) => {
     MaquinaElementoController.editar(req, res);
 });
+
+maquinaElementoRouter.post('/:id/eliminar', (req, res) => {
+    MaquinaElementoController.eliminar(req, res);
+});
