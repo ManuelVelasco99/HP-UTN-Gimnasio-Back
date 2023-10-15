@@ -50,4 +50,20 @@ export class MaquinaElementoController {
             data : maquinaElemento
         })
     }
+
+    public static async eliminar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let maquinaElementoId = req.params.id;
+        let maquinaElemento = await AppDataSource.manager.findOneBy(MaquinaElemento,{ id: maquinaElementoId });
+        if(!maquinaElemento){
+            return;
+        }
+
+        maquinaElemento.estado = false;
+        maquinaElemento = await AppDataSource.manager.save(maquinaElemento);
+
+        res.json({
+            data : maquinaElemento
+        });
+    }
+
 } 
