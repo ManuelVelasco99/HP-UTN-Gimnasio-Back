@@ -19,6 +19,7 @@ export class TipoEjercicio {
 
     @Column({
         length: 40,
+        nullable : true
     })
     nombre!: string
 

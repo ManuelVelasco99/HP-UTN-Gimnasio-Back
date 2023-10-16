@@ -14,6 +14,15 @@ export class TipoEjercicioController {
         })
     }
 
+    public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
+        let tipoEjercicioId = req.params.id;
+        let tipoEjercicio = await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: tipoEjercicioId });
+
+        res.json({
+            data : tipoEjercicio
+        })
+    }
+
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let tipoEjercicio = new TipoEjercicio();
 
@@ -42,13 +51,13 @@ export class TipoEjercicioController {
         })
     }
 
-    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
+    public static async editar(req : Request<any>, res : Response<any>) : Promise<void> {
         let tipoEjercicioId = req.params.id;
         let tipoEjercicio = await AppDataSource.manager.findOneBy(TipoEjercicio,{ id: tipoEjercicioId });
         if(!tipoEjercicio){
             return;
         }
-        tipoEjercicio.nombre = req.body.nombre;
+        tipoEjercicio.nombre = req.body?.nombre;
         tipoEjercicio.descripcion = req.body.descripcion;
         tipoEjercicio.multimedia = req.body.multimedia;
         ///busco la id de maquinaElemento del tipo ejercicio
