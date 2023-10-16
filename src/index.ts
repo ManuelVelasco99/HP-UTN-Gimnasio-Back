@@ -1,20 +1,21 @@
 import { AppDataSource         } from "./data-source"
+import   bodyParser              from "body-parser";
 import { claseRouter       } from "./modules/clase/claseRouter";
-import { socioClaseRouter       } from "./modules/socioClase/socioClaseRouter";
+import   cors                    from 'cors';
 import   dotenv                  from 'dotenv';
 import   express                 from 'express';
 import { Express               } from 'express';
 import { maquinaElementoRouter } from "./modules/maquinaElemento/maquinaElementoRouter";
+import { precioCuotaRouter     } from "./modules/precioCuota/precioCuotaRouter";
 import { Request               } from 'express';
 import { Response              } from 'express';
 import { rolRouter             } from "./modules/rol/rolRouter";
-import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
-import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
-import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
-import { rutinaRouter          } from "./modules/rutina/rutinaRouter";
 import { rutinaPresetRouter    } from "./modules/rutinaPreset/rutinaPresetRouter";
-import bodyParser from "body-parser";
-import cors from 'cors';
+import { rutinaRouter          } from "./modules/rutina/rutinaRouter";
+import { socioClaseRouter       } from "./modules/socioClase/socioClaseRouter";
+import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
+import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
+import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
 
 
 dotenv.config();
@@ -33,15 +34,16 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 //RUTAS
-app.use('/maquina-elemento', maquinaElementoRouter);
-app.use('/rol', rolRouter);
-app.use('/tipo-clase', tipoclaseRouter);
-app.use('/tipo-ejercicio', tipoEjercicioRouter);
-app.use('/usuario', usuarioRouter);
-app.use('/rutina', rutinaRouter);
-app.use('/rutinaPreset', rutinaPresetRouter);
-app.use('/clase', claseRouter);
-app.use('/socio-clase', socioClaseRouter);
+app.use('/clase'           , claseRouter           );
+app.use('/maquina-elemento', maquinaElementoRouter );
+app.use('/precio-cuota'    , precioCuotaRouter     );
+app.use('/rutinaPreset'    , rutinaPresetRouter    );
+app.use('/rutina'          , rutinaRouter          );
+app.use('/rol'             , rolRouter             );
+app.use('/socio-clase'     , socioClaseRouter      );
+app.use('/tipo-clase'      , tipoclaseRouter       );
+app.use('/tipo-ejercicio'  , tipoEjercicioRouter   );
+app.use('/usuario'         , usuarioRouter         );
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
