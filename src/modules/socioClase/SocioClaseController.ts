@@ -4,7 +4,7 @@ import { Usuario       } from "../../entity/Usuario";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import { SocioClase    } from "../../entity/SocioClase";
-import { TipoClase } from "../../entity/TipoClase";
+import { TipoClase     } from "../../entity/TipoClase";
 
 export class SocioClaseController {
 
@@ -80,8 +80,9 @@ export class SocioClaseController {
 
         let claseId = req.params.claseId
         let clase : Clase | null = null;
-        let tipoC : TipoClase | null = null;
+        //let tipoC : TipoClase | null = null;
         let cupo = null;
+        /*
         if(claseId){
             clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
             if(clase){
@@ -90,6 +91,19 @@ export class SocioClaseController {
                     cupo = tipoC?.cupo
                     }
                 }
+        }
+        */
+        if(claseId){
+            clase = await AppDataSource.manager
+            .createQueryBuilder(Clase, "clase")
+            .leftJoinAndSelect("clase.tipoClase", "tipoClase")
+            .where("clase.id = :id", { id: claseId })
+            .getOne();
+        }
+        // Obtener el objeto tipoClase asociado a la Clase
+        let tipoClase: TipoClase | null = null;
+        if (clase != null && clase.tipoClase) {
+            tipoClase = clase.tipoClase;
         }
 
         let socioClase : SocioClase | null = null;
@@ -100,7 +114,7 @@ export class SocioClaseController {
         res.json({
             data : {
                 "cant asistencias a la clase":count,
-                "cupo de la clase": cupo
+                "cupo de la clase": tipoClase?.cupo
             }
         })
     }
