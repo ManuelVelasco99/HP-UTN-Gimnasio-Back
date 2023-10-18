@@ -111,10 +111,19 @@ export class SocioClaseController {
         const count = await AppDataSource.getRepository(SocioClase).createQueryBuilder("socioClase")
         .where("socioClase.asistencia = :asistencia && socioClase.claseId = :claseId", { asistencia: "1", claseId: claseId})
         .getCount()
+
+        let rta = null
+        if(tipoClase &&  tipoClase?.cupo > count){
+            rta = "Hay cupos disponibles"
+        }
+        else{
+            rta = "No hay cupos disponibles"
+        }
         res.json({
             data : {
                 "cant asistencias a la clase":count,
-                "cupo de la clase": tipoClase?.cupo
+                "cupo de la clase": tipoClase?.cupo,
+                "cupos disponibles?": rta
             }
         })
     }
