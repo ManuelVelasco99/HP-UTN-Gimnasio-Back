@@ -4,6 +4,7 @@ import { Usuario       } from "../../entity/Usuario";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import { SocioClase    } from "../../entity/SocioClase";
+import { TipoClase } from "../../entity/TipoClase";
 
 export class SocioClaseController {
 
@@ -71,6 +72,36 @@ export class SocioClaseController {
 
         res.json({
             data : socioClase
+        })
+    }
+
+    public static async validarCupos(req : Request<any>, res : Response<any>) : Promise<void> {
+        //let socioClase = await AppDataSource.manager.find(SocioClase, {relations : {clase : true, usuario : true}});
+
+        let claseId = req.params.claseId
+        let clase : Clase | null = null;
+        let tipoC : TipoClase | null = null;
+        let cupo = null;
+        if(claseId){
+            clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
+            if(clase){
+                tipoC = clase?.tipoClase
+                if(tipoC){
+                    cupo = tipoC?.cupo
+                    }
+                }
+        }
+
+        let socioClase : SocioClase | null = null;
+        
+        const count = await AppDataSource.getRepository(SocioClase).createQueryBuilder("socioClase")
+        .where("socioClase.asistencia = :asistencia && socioClase.claseId = :claseId", { asistencia: "1", claseId: claseId})
+        .getCount()
+        res.json({
+            data : {
+                "cant asistencias a la clase":count,
+                "cupo de la clase": cupo
+            }
         })
     }
 }
