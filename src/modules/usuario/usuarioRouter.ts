@@ -19,4 +19,6 @@ usuarioRouter.post('/agregar', (req,res)=>{
 usuarioRouter.post('/:id/editar', (req,res) => {
     UsuarioController.editar(req, res);
 });
-
+usuarioRouter.get('/:id/obtener', (req, res) => {
+    UsuarioController.obtener(req, res);
+});
