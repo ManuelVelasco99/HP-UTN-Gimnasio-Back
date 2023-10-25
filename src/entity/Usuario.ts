@@ -18,8 +18,11 @@ export class Usuario {
     })
     contrasenia!: string
 
-    @Column({length:128})
-            dni!: string
+    @Column({
+        length:128,
+        unique:true
+    })
+    dni!: string
     
     @Column({length:40})
         nombre!: string
