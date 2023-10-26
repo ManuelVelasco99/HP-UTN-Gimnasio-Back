@@ -20,7 +20,3 @@ socioClaseRouter.post('/agregar', (req, res) => {
 socioClaseRouter.post('/:id/actualizar', (req, res) => {
     SocioClaseController.actualizar(req, res);
 });
-
-socioClaseRouter.get('/:claseId/validarCupos', (req, res) => {
-    SocioClaseController.validarCupos(req, res);
-});
