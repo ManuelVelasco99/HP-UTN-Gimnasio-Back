@@ -4,6 +4,7 @@ import { Usuario       } from "../../entity/Usuario";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import { SocioClase    } from "../../entity/SocioClase";
+import { TipoClase     } from "../../entity/TipoClase";
 
 export class SocioClaseController {
 
@@ -19,27 +20,41 @@ export class SocioClaseController {
         let socioClase = new SocioClase();
 
         socioClase.fecha_inscripcion = req.body.fecha_inscripcion;
-        socioClase.asistencia = req.body.asistencia;
         let claseId = req.body.clase;
         let usuarioId = req.body.usuario;
 
-        let clase : Clase | null = null;
-        if(claseId){
-            clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
+        //Validar que haya cupos en la clase
+        //let cuposDisponibles: boolean | null = null;
+        let cuposDisponibles = await this.ValidarCupo(claseId)
+
+        if (cuposDisponibles){
+            let clase : Clase | null = null;
+            if(cuposDisponibles){
+                clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
+            }
+            socioClase.clase = clase;
+
+            let usuario : Usuario | null = null;
+            if(usuarioId){
+                usuario = await AppDataSource.manager.findOneBy(Usuario, { id: usuarioId});
+            }
+            socioClase.usuario = usuario
+
+            socioClase.asistencia = true;
+
+            socioClase = await AppDataSource.manager.save(socioClase);
+
+            res.json({
+                data : socioClase
+            })
         }
-        socioClase.clase = clase;
-
-        let usuario : Usuario | null = null;
-        if(usuarioId){
-            usuario = await AppDataSource.manager.findOneBy(Usuario, { id: usuarioId});
+        else{
+            res.json({
+                data : "No hay cupos disponibles"
+            })
         }
-        socioClase.usuario = usuario
 
-        socioClase = await AppDataSource.manager.save(socioClase);
-
-        res.json({
-            data : socioClase
-        })
+        
     }
 
     public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
@@ -72,5 +87,33 @@ export class SocioClaseController {
         res.json({
             data : socioClase
         })
+    }
+
+    public static async ValidarCupo(claseId: number) : Promise<boolean>{
+        let clase : Clase | null = null;
+
+        if(claseId){
+            clase = await AppDataSource.manager
+            .createQueryBuilder(Clase, "clase")
+            .leftJoinAndSelect("clase.tipoClase", "tipoClase")
+            .where("clase.id = :id", { id: claseId })
+            .getOne();
+        }
+        // Obtener el objeto tipoClase asociado a la Clase
+        let tipoClase: TipoClase | null = null;
+        if (clase != null && clase.tipoClase) {
+            tipoClase = clase.tipoClase;
+        }
+
+        const count = await AppDataSource.getRepository(SocioClase).createQueryBuilder("socioClase")
+        .where("socioClase.asistencia = :asistencia && socioClase.claseId = :claseId", { asistencia: "1", claseId: claseId})
+        .getCount()
+
+        if(tipoClase &&  tipoClase?.cupo > count){
+            return true
+        }
+        else{
+            return false
+        }
     }
 }
