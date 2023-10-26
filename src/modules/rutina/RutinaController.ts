@@ -9,8 +9,13 @@ import { Usuario             } from "../../entity/Usuario";
 export class RutinaController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let rutinas = await AppDataSource.manager.find(Rutina);
-
+        //let rutinas = await AppDataSource.manager.find(Rutina);
+        let rutinas = await AppDataSource.manager
+        .createQueryBuilder('rutina', 'rut')
+        .select(' rut.id"id", socio.nombre"nombre_socio", profe.nombre"nombre_profesor", date_format(rut.fecha_creacion, "%Y-%m-%d")"fecha_creacion", rut.nombre"nombre" ')
+        .innerJoin('rut.socio', 'socio')
+        .innerJoin('rut.profesor', 'profe')
+        .getRawMany();
         res.json({
             data : rutinas
         })
