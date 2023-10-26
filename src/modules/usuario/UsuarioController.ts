@@ -9,15 +9,21 @@ import { createQueryBuilder } from "typeorm";
 export class UsuarioController {
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
        //let usuarios = await AppDataSource.manager.find(Usuario);
+       
+       try {
         let usuarios = await AppDataSource.manager
             
             .createQueryBuilder('usuario', 'u')
             .select('u.id, u.dni, u.nombre,u.apellido, u.telefono, date_format(u.fecha_nacimiento, "%Y-%m-%d")"fecha_nacimiento", date_format(u.fecha_comienzo, "%Y-%m-%d")"fecha_comienzo", u.email, r.nombre "rol"')
             .innerJoin('u.rol', 'r')
             .getRawMany();
-        res.json({
-            data : usuarios /* DATE_FORMAT(date,'%y-%m-%d')*/
-        })
+            res.json({
+                data : usuarios 
+            })
+       } catch (error) {
+        res.json({data: "error"})
+       }
+        
     }
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let usuario = new Usuario();
