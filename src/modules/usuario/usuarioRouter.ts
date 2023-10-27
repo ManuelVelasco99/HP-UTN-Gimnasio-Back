@@ -1,6 +1,6 @@
-import { Router } from "express";
-import { UsuarioController } from "./UsuarioController";
-import { Usuario } from "../../entity/Usuario";
+import { Router             } from "express";
+import { UsuarioController  } from "./UsuarioController";
+import { Usuario            } from "../../entity/Usuario";
 
 export const usuarioRouter = Router();
 

@@ -1,7 +1,7 @@
-import { AppDataSource   } from "../../data-source";
-import { RutinaPreset } from "../../entity/RutinaPreset";
-import { Request         } from "express-serve-static-core";
-import { Response        } from "express-serve-static-core";
+import { AppDataSource      } from "../../data-source";
+import { RutinaPreset       } from "../../entity/RutinaPreset";
+import { Request            } from "express-serve-static-core";
+import { Response           } from "express-serve-static-core";
 
 export class RutinaPresetController {
 
