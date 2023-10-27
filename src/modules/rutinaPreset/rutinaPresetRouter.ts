@@ -1,5 +1,5 @@
-import { RutinaPresetController } from './RutinaPresetController';
-import { Router                    } from 'express';
+import { RutinaPresetController     } from './RutinaPresetController';
+import { Router                     } from 'express';
 
 export const rutinaPresetRouter = Router();
 

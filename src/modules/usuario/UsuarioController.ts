@@ -1,8 +1,8 @@
-import { AppDataSource } from "../../data-source";
-import { Usuario           } from "../../entity/Usuario";
-import { Request       } from "express-serve-static-core";
-import { Response      } from "express-serve-static-core";
-import { Rol } from "../../entity/Rol";
+import { AppDataSource      } from "../../data-source";
+import { Usuario            } from "../../entity/Usuario";
+import { Request            } from "express-serve-static-core";
+import { Response           } from "express-serve-static-core";
+import { Rol                } from "../../entity/Rol";
 import { createQueryBuilder } from "typeorm";
 
 
@@ -81,8 +81,4 @@ export class UsuarioController {
             data : usuario
         })
     }
-
-
-
-
 }
