@@ -10,8 +10,8 @@ export class Middlewares {
         let token = req.header("access-token") || "";
 
         try{
-            jwt.verify(token,process.env.SECRET_WORD || "?")
-
+            jwt.verify(token,process.env.SECRET_WORD || "?");
+            next();
         }
         catch(error : any){
             res.status(403).json({
@@ -19,7 +19,7 @@ export class Middlewares {
             });
         }
 
-        next();
+        
     }
 
 }
