@@ -31,21 +31,24 @@ export class AuthController {
                 data : 'Dni y/o contraseña incorrecto/s'
             })
         }
-        let token = jwt.sign(
-            {
-                id : usuario?.id,
-                nombre : usuario?.nombre,
-                apellido : usuario?.apellido,
-                rol_id : usuario?.rol?.id
-            },
-            process.env.SECRET_WORD || "?"
-        )
-
-        res.json({
-            data : {
-                token : token
-            }
-        })
+        else{
+            let token = jwt.sign(
+                {
+                    id : usuario?.id,
+                    nombre : usuario?.nombre,
+                    apellido : usuario?.apellido,
+                    rol_id : usuario?.rol?.id
+                },
+                process.env.SECRET_WORD || "?"
+            )
+    
+            res.json({
+                data : {
+                    token : token
+                }
+            })
+        }
+        
     }
 
     public static async obtenerMisDatos(req : Request<any>, res : Response<any>) : Promise<void> {
