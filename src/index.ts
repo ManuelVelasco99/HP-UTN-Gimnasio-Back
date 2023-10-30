@@ -7,6 +7,7 @@ import   dotenv                  from 'dotenv';
 import   express                 from 'express';
 import { Express               } from 'express';
 import { maquinaElementoRouter } from "./modules/maquinaElemento/maquinaElementoRouter";
+import { Middlewares           } from "./middlewares/verifyToken";
 import { precioCuotaRouter     } from "./modules/precioCuota/precioCuotaRouter";
 import { Request               } from 'express';
 import { Response              } from 'express';
@@ -37,7 +38,13 @@ app.get('/', (req: Request, res: Response) => {
 //RUTAS
 app.use('/auth'            , authRouter            );
 app.use('/clase'           , claseRouter           );
-app.use('/maquina-elemento', maquinaElementoRouter );
+app.use('/maquina-elemento',
+    [
+        Middlewares.verifyToken,
+        Middlewares.validarRolDelEncargado
+    ],
+    maquinaElementoRouter
+);
 app.use('/precio-cuota'    , precioCuotaRouter     );
 app.use('/rutinaPreset'    , rutinaPresetRouter    );
 app.use('/rutina'          , rutinaRouter          );
