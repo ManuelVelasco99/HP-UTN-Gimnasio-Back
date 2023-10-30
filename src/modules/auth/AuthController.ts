@@ -78,7 +78,7 @@ export class AuthController {
         })
     }
 
-    private static async decodificarToken(token : string = '') : Promise<any> {
+    public static async decodificarToken(token : string = '') : Promise<any> {
         return jwt.decode(token);
     }
 
