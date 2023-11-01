@@ -58,6 +58,7 @@ export class CuotaMensualController {
         
         if(cuotaMensual){
             cuotaMensual.motivo_baja=req.params.motivo_baja;
+            //Ver de añadir el token
             cuotaMensual.usuario_eliminacion=req.params.idUsuarioEliminacion;
             return;
         }
