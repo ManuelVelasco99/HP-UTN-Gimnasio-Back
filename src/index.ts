@@ -50,7 +50,13 @@ app.use('/rutinaPreset'    , rutinaPresetRouter    );
 app.use('/rutina'          , rutinaRouter          );
 app.use('/rol'             , rolRouter             );
 app.use('/socio-clase'     , socioClaseRouter      );
-app.use('/tipo-clase'      , tipoclaseRouter       );
+app.use('/tipo-clase',
+    [
+        Middlewares.verifyToken,
+        Middlewares.validarRolDelEncargado
+    ],
+    tipoclaseRouter
+);
 app.use('/tipo-ejercicio'  , tipoEjercicioRouter   );
 app.use('/usuario'         , usuarioRouter         );
 
