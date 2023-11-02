@@ -16,3 +16,8 @@ cuotaMensualRouter.get('/listar', (req, res) => {
 cuotaMensualRouter.post('/agregar', (req, res) => {
     CuotaMensualController.agregar(req, res);
 });
+
+cuotaMensualRouter.post(
+    '/validar-pago',
+    CuotaMensualController.validarPago
+);

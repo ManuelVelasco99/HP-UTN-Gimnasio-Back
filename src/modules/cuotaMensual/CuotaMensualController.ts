@@ -79,4 +79,36 @@ export class CuotaMensualController {
 
         
     }
+
+    public static async validarPago(req : Request<any>, res : Response<any>) : Promise<void> {
+        
+        let dniSocio = req.body.dni;
+
+        let socio : Usuario | null = null;
+
+
+
+        try {
+            socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
+            if(socio){
+                res.json({
+                    data : {
+                        socio : socio,
+                        //cuota : ""
+                    }
+                });
+            }
+            else{
+                res.status(404).json({
+                    error : "error"
+                });
+            }
+
+            
+        } catch (error) {
+            res.status(404).json({
+                error : "error"
+            });
+        }
+    }
 }
