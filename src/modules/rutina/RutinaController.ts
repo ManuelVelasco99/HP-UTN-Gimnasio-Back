@@ -22,7 +22,7 @@ export class RutinaController {
     }
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
-
+            
         let rutina = new Rutina();
 
         rutina.nombre = req.body.nombre;
