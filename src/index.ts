@@ -14,7 +14,8 @@ import { Response              } from 'express';
 import { rolRouter             } from "./modules/rol/rolRouter";
 import { rutinaPresetRouter    } from "./modules/rutinaPreset/rutinaPresetRouter";
 import { rutinaRouter          } from "./modules/rutina/rutinaRouter";
-import { socioClaseRouter       } from "./modules/socioClase/socioClaseRouter";
+import { socioClaseRouter      } from "./modules/socioClase/socioClaseRouter";
+import { socioRouter           } from "./modules/socio/socioRouter";
 import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
 import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
 import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
@@ -49,6 +50,13 @@ app.use('/precio-cuota'    , precioCuotaRouter     );
 app.use('/rutinaPreset'    , rutinaPresetRouter    );
 app.use('/rutina'          , rutinaRouter          );
 app.use('/rol'             , rolRouter             );
+app.use('/socio',
+    [
+        Middlewares.verifyToken,
+        Middlewares.validarRolDelEncargado
+    ],
+    socioRouter
+);
 app.use('/socio-clase'     , socioClaseRouter      );
 app.use('/tipo-clase',
     [
