@@ -51,7 +51,7 @@ export class AuthController {
     public static async obtenerMisDatos(req : Request<any>, res : Response<any>) : Promise<void> {
         let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
         
-        let usuario = await AppDataSource.manager.findOneBy(Usuario,tokenDecoded.id);
+        let usuario = await this.obtenerDatosUsuarioPorId(tokenDecoded.id);
 
         res.json({
             data: {
@@ -64,7 +64,11 @@ export class AuthController {
         })
     }
 
-    private static async decodificarToken(token : string = '') : Promise<any> {
+    public static async obtenerDatosUsuarioPorId(id : number){
+        return await AppDataSource.manager.findOneBy(Usuario,{id: id});
+    }
+
+    public static async decodificarToken(token : string = '') : Promise<any> {
         return jwt.decode(token);
     }
 

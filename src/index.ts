@@ -2,6 +2,7 @@ import { AppDataSource         } from "./data-source"
 import { authRouter            } from "./modules/auth/authRouter";
 import   bodyParser              from "body-parser";
 import { claseRouter           } from "./modules/clase/claseRouter";
+import { cuotaMensualRouter    } from "./modules/cuotaMensual/cuotaMensualRouter";
 import   cors                    from 'cors';
 import   dotenv                  from 'dotenv';
 import   express                 from 'express';
@@ -37,6 +38,7 @@ app.get('/', (req: Request, res: Response) => {
 //RUTAS
 app.use('/auth'            , authRouter            );
 app.use('/clase'           , claseRouter           );
+app.use('/cuota-mensual'   , cuotaMensualRouter    );
 app.use('/maquina-elemento', maquinaElementoRouter );
 app.use('/precio-cuota'    , precioCuotaRouter     );
 app.use('/rutinaPreset'    , rutinaPresetRouter    );

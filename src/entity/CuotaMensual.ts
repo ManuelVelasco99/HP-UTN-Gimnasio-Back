@@ -22,9 +22,10 @@ export class CuotaMensual {
     fecha_pago!: Date
 
     @Column({
-        type:"tinytext"
+        type:"tinytext",
+        nullable: true,
     })
-    motivo_baja!: string
+    motivo_baja!: string | null
 
     @Column()
     estado!: boolean

@@ -1,18 +1,18 @@
-import { CuotaMensualController } from './CuotaMensualController';
+import { CuotaMensualController    } from './CuotaMensualController';
 import { Router                    } from 'express';
 
-export const precioCuotaRouter = Router();
+export const cuotaMensualRouter = Router();
 
-precioCuotaRouter.get('/', (req, res) => {
+cuotaMensualRouter.get('/', (req, res) => {
     res.json({
         data : "Precio Cuota route"
     });
 });
 
-precioCuotaRouter.get('/listar', (req, res) => {
+cuotaMensualRouter.get('/listar', (req, res) => {
     CuotaMensualController.listar(req, res);
 });
 
-precioCuotaRouter.post('/agregar', (req, res) => {
+cuotaMensualRouter.post('/agregar', (req, res) => {
     CuotaMensualController.agregar(req, res);
 });

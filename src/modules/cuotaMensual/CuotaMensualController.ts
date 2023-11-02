@@ -4,6 +4,7 @@ import { PrecioCuota    } from "../../entity/PrecioCuota";
 import { Request        } from "express-serve-static-core";
 import { Response       } from "express-serve-static-core";
 import { Usuario        } from "../../entity/Usuario";
+import { AuthController } from "../auth/AuthController";
 
 export class CuotaMensualController {
 
@@ -58,16 +59,24 @@ export class CuotaMensualController {
         
         if(cuotaMensual){
             cuotaMensual.motivo_baja=req.params.motivo_baja;
-            //Ver de añadir el token
-            cuotaMensual.usuario_eliminacion=req.params.idUsuarioEliminacion;
-            return;
+            let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+            let usuarioEliminacion = await AuthController.obtenerDatosUsuarioPorId(tokenDecoded.id)
+            if(usuarioEliminacion){
+                cuotaMensual.usuario_eliminacion=usuarioEliminacion;
+                cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
+
+                res.json({
+                    data : cuotaMensual
+                });
+            }
+            else{
+                res.json({
+                    error : "error"
+                });
+            }
         }
         //else{}
 
-        cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
-
-        res.json({
-            data : cuotaMensual
-        });
+        
     }
 }
