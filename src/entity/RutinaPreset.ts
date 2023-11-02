@@ -22,7 +22,7 @@ export class RutinaPreset {
     fecha_creacion! : Date
 
     @OneToMany(() => Ejercicio , (ejercicio) => ejercicio.rutinaPreset)
-    ejercicio!: Ejercicio
+    ejercicio!: Ejercicio | null
 
     
 }
