@@ -1,18 +1,24 @@
-import { AppDataSource   } from "../../data-source";
-import { TipoClase } from "../../entity/TipoClase";
-import { Usuario } from "../../entity/Usuario";
-import { Request         } from "express-serve-static-core";
-import { Response        } from "express-serve-static-core";
-import { Clase   } from "../../entity/Clase";
+import { AppDataSource } from "../../data-source";
+import { TipoClase     } from "../../entity/TipoClase";
+import { Usuario       } from "../../entity/Usuario";
+import { Request       } from "express-serve-static-core";
+import { Response      } from "express-serve-static-core";
+import { Clase         } from "../../entity/Clase";
 
 export class ClaseController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let clase = await AppDataSource.manager.find(Clase, {relations : {tipoClase : true, usuario : true}});
+        let clases = await AppDataSource.manager.find(Clase, {relations : {tipoClase : true, usuario : true}});
+        
+        let clasesParseadas : any = clases;
+
+        clasesParseadas.forEach((element : any) => {
+            element["clase"] = element.tipoClase.descripcion;
+        });
 
         res.json({
-            data : clase
-        })
+            data : clasesParseadas
+        });
     }
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
@@ -28,7 +34,7 @@ export class ClaseController {
         if(tipoClaseId){
             tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
         }
-        clase.tipoClase = tipoClase;
+        if(tipoClase) clase.tipoClase = tipoClase;
 
         let usuario : Usuario | null = null;
         if(usuarioId){
@@ -59,7 +65,7 @@ export class ClaseController {
         if(tipoClaseId){
             tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
         }
-        clase.tipoClase = tipoClase;
+        if(tipoClase) clase.tipoClase = tipoClase;
 
         ///busco la id del profesor de la clase
         let usuarioId = req.body.usuario
