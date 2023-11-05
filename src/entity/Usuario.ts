@@ -49,7 +49,7 @@ export class Usuario {
     @Column()
     estado! : boolean
 
-    @ManyToOne( () => Rol, (rol) => rol.usuarios)
+    @ManyToOne( () => Rol, (rol) => rol.usuarios,{ nullable: false })
     rol!: Rol | null
 
     @OneToMany(() => Rutina , (rutina) => rutina.socio)
