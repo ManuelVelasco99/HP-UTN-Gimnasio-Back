@@ -4,6 +4,7 @@ import { Usuario       } from "../../entity/Usuario";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import { SocioClase    } from "../../entity/SocioClase";
+import { userInfo } from "os";
 import { TipoClase     } from "../../entity/TipoClase";
 
 export class SocioClaseController {
