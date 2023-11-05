@@ -16,3 +16,13 @@ tipoclaseRouter.get('/listar', (req, res) => {
 tipoclaseRouter.post('/agregar', (req, res) => {
     TipoClaseController.agregar(req, res);
 });
+
+tipoclaseRouter.get(
+    '/:id/obtener', 
+    TipoClaseController.obtener
+);
+
+tipoclaseRouter.post(
+    '/:id/editar',
+    TipoClaseController.editar
+);
