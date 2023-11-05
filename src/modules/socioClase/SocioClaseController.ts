@@ -16,6 +16,8 @@ export class SocioClaseController {
         })
     }
 
+
+
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let socioClase = new SocioClase();
 

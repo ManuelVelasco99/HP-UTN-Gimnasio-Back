@@ -17,6 +17,7 @@ socioClaseRouter.post('/agregar', (req, res) => {
     SocioClaseController.agregar(req, res);
 });
 
+
 socioClaseRouter.post('/:id/actualizar', (req, res) => {
     SocioClaseController.actualizar(req, res);
 });

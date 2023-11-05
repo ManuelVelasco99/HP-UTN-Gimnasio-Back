@@ -73,9 +73,18 @@ export class UsuarioController {
 
     }   
 
+    public static async obtenerDni(req : Request<any>, res : Response<any>) : Promise<void>{
+        let socio = await AppDataSource.manager.findOneBy(Usuario, {dni: req.params.dni});
+        //let socio = await AppDataSource.manager.findOneBy(SocioClase, {usuario: usu});
+        console.log(socio);
+        res.json({
+            data : socio
+        })
+    }
+
     public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
         let usuarioId = req.params.id;
-        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ id: usuarioId });
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ id: usuarioId});
 
         res.json({
             data : usuario

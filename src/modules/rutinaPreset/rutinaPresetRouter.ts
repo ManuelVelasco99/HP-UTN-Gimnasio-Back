@@ -12,7 +12,9 @@ rutinaPresetRouter.get('/', (req, res) => {
 rutinaPresetRouter.get('/listar', (req, res) => {
     RutinaPresetController.listar(req, res);
 });
-
+rutinaPresetRouter.get('/:id/obtener', (req, res) => {
+    RutinaPresetController.obtener(req, res);
+});
 rutinaPresetRouter.post('/agregar', (req, res) => {
     RutinaPresetController.agregar(req, res);
 });
