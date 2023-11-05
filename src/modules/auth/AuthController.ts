@@ -31,27 +31,40 @@ export class AuthController {
                 data : 'Dni y/o contraseña incorrecto/s'
             })
         }
-        let token = jwt.sign(
-            {
-                id : usuario?.id,
-                nombre : usuario?.nombre,
-                apellido : usuario?.apellido,
-                rol_id : usuario?.rol?.id
-            },
-            process.env.SECRET_WORD || "?"
-        )
-
-        res.json({
-            data : {
-                token : token
-            }
-        })
+        else{
+            let token = jwt.sign(
+                {
+                    id : usuario?.id,
+                    nombre : usuario?.nombre,
+                    apellido : usuario?.apellido,
+                    rol_id : usuario?.rol?.id
+                },
+                process.env.SECRET_WORD || "?"
+            )
+    
+            res.json({
+                data : {
+                    token : token
+                }
+            })
+        }
+        
     }
 
     public static async obtenerMisDatos(req : Request<any>, res : Response<any>) : Promise<void> {
         let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
         
-        let usuario = await AppDataSource.manager.findOneBy(Usuario,tokenDecoded.id);
+        let usuario = await AppDataSource.manager.findOne(
+            Usuario,
+            {
+                where :{
+                    id : tokenDecoded.id
+                },
+                relations : [
+                    'rol'
+                ]
+            }
+        );
 
         res.json({
             data: {
@@ -59,12 +72,13 @@ export class AuthController {
                 apellido : usuario?.apellido,
                 telefono : usuario?.telefono,
                 fecha_nacimiento : usuario?.fecha_nacimiento,
-                email : usuario?.email
+                email : usuario?.email,
+                rol : usuario?.rol
             }
         })
     }
 
-    private static async decodificarToken(token : string = '') : Promise<any> {
+    public static async decodificarToken(token : string = '') : Promise<any> {
         return jwt.decode(token);
     }
 

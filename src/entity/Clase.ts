@@ -27,8 +27,8 @@ export class Clase {
     })
     horario_fin!: string
 
-    @ManyToOne(() => TipoClase, (tipoClase) => tipoClase.clases)
-    tipoClase!: TipoClase | null
+    @ManyToOne(() => TipoClase, (tipoClase) => tipoClase.clases,{ nullable: false })
+    tipoClase!: TipoClase;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.clases)
     usuario!: Usuario | null

@@ -1,6 +1,7 @@
-import { NextFunction  } from "express";
-import { Request       } from "express-serve-static-core";
-import { Response      } from "express-serve-static-core";
+import { AuthController } from "../modules/auth/AuthController";
+import { NextFunction   } from "express";
+import { Request        } from "express-serve-static-core";
+import { Response       } from "express-serve-static-core";
 import   jwt             from "jsonwebtoken"; 
 
 
@@ -10,8 +11,8 @@ export class Middlewares {
         let token = req.header("access-token") || "";
 
         try{
-            jwt.verify(token,process.env.SECRET_WORD || "?")
-
+            jwt.verify(token,process.env.SECRET_WORD || "?");
+            next();
         }
         catch(error : any){
             res.status(403).json({
@@ -19,7 +20,21 @@ export class Middlewares {
             });
         }
 
-        next();
+        
+    }
+
+    public static async validarRolDelEncargado(req : Request<any>, res : Response<any>, next : NextFunction) : Promise<void> {
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+
+        if(tokenDecoded.rol_id === 1){
+            next();
+        }
+        else{
+            res.status(403).json({
+                message: "Acceso denegado"
+            });
+        }
+        
     }
 
 }
