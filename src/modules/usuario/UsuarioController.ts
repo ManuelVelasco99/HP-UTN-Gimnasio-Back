@@ -81,4 +81,15 @@ export class UsuarioController {
             data : usuario
         })
     }
+
+    public static async validarDniDisponible(dni : string) : Promise<boolean> {
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ dni: dni });
+        return usuario ? false : true;
+    }
+
+    public static async validarEmailDisponible(email : string) : Promise<boolean> {
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ email: email });
+        return usuario ? false : true;
+    }
+
 }

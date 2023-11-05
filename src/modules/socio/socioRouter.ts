@@ -8,3 +8,9 @@ socioRouter.get(
     SocioController.listar
 );
 
+socioRouter.post(
+    '/agregar',
+    SocioController.agregar
+);
+
+
