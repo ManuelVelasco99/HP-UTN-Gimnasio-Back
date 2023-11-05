@@ -33,7 +33,7 @@ export class Ejercicio {
     
 
     @ManyToOne(() => TipoEjercicio , (tiposEjercicio) => tiposEjercicio.ejercicio)
-    tiposEjercicio!: TipoEjercicio
+    tiposEjercicio!: TipoEjercicio | null
 
     @OneToMany(() => Nota , (nota) => nota.ejercicio)
     nota!: Nota | null

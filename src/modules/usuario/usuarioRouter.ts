@@ -13,6 +13,11 @@ usuarioRouter.get('/', (req, res) => {
 usuarioRouter.get('/listar', (req,res) => {
     UsuarioController.listar(req,res);
 });
+
+usuarioRouter.get('/:dni/obtenerDni', (req,res) => {
+    UsuarioController.obtenerDni(req,res);
+});
+
 usuarioRouter.post('/agregar', (req,res)=>{
     UsuarioController.agregar(req, res);
 });

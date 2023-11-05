@@ -4,6 +4,7 @@ import { Usuario       } from "../../entity/Usuario";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import { SocioClase    } from "../../entity/SocioClase";
+import { userInfo } from "os";
 
 export class SocioClaseController {
 
@@ -14,6 +15,8 @@ export class SocioClaseController {
             data : socioClase
         })
     }
+
+
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let socioClase = new SocioClase();
