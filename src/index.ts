@@ -47,8 +47,20 @@ app.use('/maquina-elemento',
     maquinaElementoRouter
 );
 app.use('/precio-cuota'    , precioCuotaRouter     );
-app.use('/rutinaPreset'    , rutinaPresetRouter    );
-app.use('/rutina'          , rutinaRouter          );
+app.use('/rutinaPreset',
+    [
+        Middlewares.verifyToken,
+        //Middlewares.validarRolDelProfesor
+    ],
+    rutinaPresetRouter
+);
+app.use('/rutina',
+    [
+        Middlewares.verifyToken,
+        Middlewares.validarRolDelProfesor
+    ],
+    rutinaRouter
+);
 app.use('/rol'             , rolRouter             );
 app.use('/socio',
     [

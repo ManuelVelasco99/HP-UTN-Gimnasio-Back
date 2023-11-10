@@ -3,7 +3,8 @@ import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 import { OneToMany              } from "typeorm"
 import { Ejercicio              } from "./Ejercicio"
-///import { TipoEjercicio } from "./TipoEjercicio" //// ACA IMPORTAR EL EJERCICIO
+import { Usuario                } from "./Usuario"     
+import { ManyToOne              } from "typeorm"
 
 @Entity({name : 'rutina_preset'})
 export class RutinaPreset {
@@ -22,7 +23,11 @@ export class RutinaPreset {
     fecha_creacion! : Date
 
     @OneToMany(() => Ejercicio , (ejercicio) => ejercicio.rutinaPreset)
-    ejercicio!: Ejercicio | null
+    ejercicio!: Ejercicio[]  | null
+
+    @ManyToOne(() => Usuario , (profesor) => profesor.rutina_preset_profesor)
+    profesor!: Usuario | null
+
 
     
 }
