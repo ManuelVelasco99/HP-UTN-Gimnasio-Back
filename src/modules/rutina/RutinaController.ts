@@ -6,6 +6,7 @@ import { Response            } from "express-serve-static-core";
 import { Rutina              } from "../../entity/Rutina";
 import { Usuario             } from "../../entity/Usuario";
 import { TipoEjercicio } from "../../entity/TipoEjercicio";
+import { AuthController } from "../auth/AuthController";
 
 export class RutinaController {
 
@@ -23,27 +24,12 @@ export class RutinaController {
     }
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
-            
-            console.log("##########################################################");
-            console.log("#                                                        #");
-            console.log("Socio ----> ", req.body.usuario.nombre);
-            console.log("Rutina: " , req.body.nombreRutina, " ID RUTINA CARGADA: ");
-            for(let i = 0; i < req.body.ejercicios.length; i++ ){
-                console.log("Dia: ", req.body.ejercicios[i][0].diaRutina)
-                for(let j =0; j < req.body.ejercicios[i].length; j++){
-                    console.log("   ",
-                        "Id tipo Ejercicio", req.body.ejercicios[i][j].id_tipo_ejercicio, 
-                        " Series: ", req.body.ejercicios[i][j].series , 
-                        " Repeticiones: ", req.body.ejercicios[i][j].repeticiones)
-                }
-            }
-            console.log("#                                                        #");
-            console.log("##########################################################");
-
-
         let rutina                          = new Rutina();
         let fechaHoy                        = new Date();
         let ejercicio; 
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let idProfesor = tokenDecoded.id;
+        rutina.profesor                     = await AppDataSource.manager.findOneBy(Usuario, {id : idProfesor});
         rutina.nombre                       = req.body.nombreRutina;
         rutina.socio                        = req.body.usuario;
         rutina.fecha_creacion               = fechaHoy; //Seba: le puse que cargue derecho la fecha del dia que se carga
@@ -65,41 +51,210 @@ export class RutinaController {
          })
 
     }
+    private static async validarProfesor(rutina: Rutina, profesor: Usuario ) : Promise<boolean>{
+        ////// VALIDO EL PROFE ////
+        //console.log("Rutina", rutina)
 
-    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let rutinaId = req.params.id;
-        let rutina = await AppDataSource.manager.findOneBy(Rutina,{ id: rutinaId });
-        if(!rutina){
-            return;
-        }
-     
-        rutina.nombre = req.body.nombre;
-        rutina.fecha_creacion = req.body.fecha_creacion;
+        console.log("rutina.profesor?.id ", rutina.profesor?.id )
+        console.log("profesor.id", profesor.id)
+       return rutina.profesor?.id === profesor.id;
+    }
 
+    public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
+        //let rutinaPreset = await AppDataSource.manager.findOneBy(RutinaPreset, {id: req.params.dni});
+        //let socio = await AppDataSource.manager.findOneBy(SocioClase, {usuario: usu});
+        let idR = req.params.id;
+        let rutina = await AppDataSource.manager
+        .createQueryBuilder('rutina', 'r')
+        .innerJoinAndSelect('r.ejercicios', 'ejercicios' )
+        .innerJoin('r.socio', 'socio')
+        .where('r.id = :id', {id: idR})
+        .getRawMany(); 
 
-        let socioId=req.body.socioId;
-
-        let socio : Usuario | null = null;
-        socio= await AppDataSource.manager.findOneBy(Usuario,{ id: socioId });
-        if(socio){
-            rutina.socio=socio;
-        }
-        //else{}  falta en caso de que traiga Null
-        
-        let profesorId=req.body.profesorId;
-
-        let profesor : Usuario | null = null;
-        profesor= await AppDataSource.manager.findOneBy(Usuario,{ id: profesorId });
-        if(profesor){
-            rutina.profesor=profesor;
-        }
-        //else{}  falta en caso de que traiga Null
-
-
-        rutina = await AppDataSource.manager.save(rutina);
-
+        console.log(rutina);
         res.json({
             data : rutina
         })
     }
+
+    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let rutinaId                 = req.body.idRutina    ;
+        let nombreRutina             = req.body.nombreRutina;
+        let ejercicio; 
+        let ejerciciosEditados      : Array <Ejercicio> = [];
+        let ejerciciosActualizar    : Array <Ejercicio> = [];
+        let ejerciciosBorrar        : Array <Ejercicio> = [];
+        let ejercicioAgergar        : Array <Ejercicio> = [];
+        let tokenDecoded            = await AuthController.decodificarToken(req.header('access-token'));
+        let idProfesor              = tokenDecoded.id;
+        ///// VALIDAR EL PROFESOR /////
+        let profesor                = await AppDataSource.manager.findOneBy(Usuario, {id: idProfesor});
+        let rutina                  = await AppDataSource.manager.findOne(Rutina,{where : {id: rutinaId}, relations : {ejercicios : true}});
+        let runtina                 = await AppDataSource.manager.findOne(Rutina, {where : {id: rutinaId}, relations : {profesor : true}});
+
+        if(!rutina ||!runtina || !rutina.ejercicios || !profesor){
+            return;
+        }
+        if(await this.validarProfesor(runtina, profesor)){
+            ///////////////////////////////////////////////////////////
+            //// Asigno los ejercicios que vinieron a un arreglo  /////
+            for(let i = 0; i < req.body.ejercicios.length; i++ ){
+                for(let j =0; j < req.body.ejercicios[i].length; j++){    
+                    ejercicio                   = new Ejercicio();     
+                    ejercicio.id                = req.body.ejercicios[i][j].id;
+                    ejercicio.tiposEjercicio    = await AppDataSource.manager.findOneBy(TipoEjercicio, {id : req.body.ejercicios[i][j].id_tipo_ejercicio});
+                    ejercicio.rutina            = rutina;
+                    ejercicio.diaRutina         = req.body.ejercicios[i][j].diaRutina;
+                    ejercicio.series            = req.body.ejercicios[i][j].series;
+                    ejercicio.repeticiones      = req.body.ejercicios[i][j].repeticiones;
+                    ejerciciosEditados.push(ejercicio);
+                }
+            }
+            ////                                                   ////
+            ///////////////////////////////////////////////////////////
+
+            ////////////////////////////////////////////////////////////////////////
+            //// Guardo los ejercicios que vinieron y que estaban en la rutina /////
+            for(let i=0; i < rutina.ejercicios?.length; i++ ){
+                for(let j =0; j < ejerciciosEditados.length; j++){
+                    if(rutina.ejercicios[i].id == ejerciciosEditados[j].id){
+                        ejerciciosActualizar.push(ejerciciosEditados[j]);
+                    }
+                }
+            }
+            /////                                                              /////
+            ////////////////////////////////////////////////////////////////////////
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //// Selecciono los ejercicios que no vinieron con el id que estaba en la rutina, por lo cual los guardo en un arreglo para borrarlos ////
+            let borrar:boolean = true;
+            for(let i=0; i < rutina.ejercicios?.length; i++){
+                borrar = true;
+                for(let j =0; j < ejerciciosEditados.length; j++){
+                    if(rutina.ejercicios[i].id == ejerciciosEditados[j].id){
+                    borrar=false
+                    }
+                }
+                if(borrar){
+                    ejerciciosBorrar.push(rutina.ejercicios[i]);
+                }
+            }
+            /////                                                                                                                               //////
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            ////////////////////////////////////////////////////////////////////////////////////////
+            ///////// Selecciono los ejercicios que vienen sin id, son los que se agregan //////////
+            for(let i = 0; i  < ejerciciosEditados.length; i++){
+                if(ejerciciosEditados[i].id==undefined){
+                    ejercicioAgergar.push(ejerciciosEditados[i]);
+                }
+            }
+            ////                                                                                ////
+            ////////////////////////////////////////////////////////////////////////////////////////
+
+            ///////////////////////////////////////////////////////////////////////////////
+            //// Una vez que ya tengo todo acomodado, lo actualizo en la base de datos ////
+            ///////////////////////////////////////////////////////////////////////////////
+
+            //// Actualizo ////
+
+            await AppDataSource.manager
+            .createQueryBuilder()
+            .update(Rutina)
+            .set({
+                nombre : nombreRutina
+            })
+            .where("id = :id",{id: rutinaId})
+            .execute();
+
+            for(let i =0; i < ejerciciosActualizar.length; i++){
+                AppDataSource.manager
+                    .createQueryBuilder()
+                    .update(Ejercicio)
+                    .set(
+                        {
+                            diaRutina       : ejerciciosActualizar[i].diaRutina,
+                            series          : ejerciciosActualizar[i].series,
+                            repeticiones    : ejerciciosActualizar[i].repeticiones,
+                            tiposEjercicio  : ejerciciosActualizar[i].tiposEjercicio 
+                        }
+                    )
+                    .where("id = :id",{id: ejerciciosActualizar[i].id})
+                    .execute();
+            }
+
+            //// Elimino ////
+            for(let i = 0 ; i < ejerciciosBorrar.length; i++){
+                AppDataSource.manager
+                .createQueryBuilder('ejercicio', 'ejercicio')
+                .delete()
+                .from(Ejercicio)
+                .where('ejercicio.id = :id', {id: ejerciciosBorrar[i].id})
+                .execute();
+                console.log("Borrando ando")
+            }
+
+            //// Agrego ////
+            for(let i = 0 ; i < ejercicioAgergar.length; i++){
+                await AppDataSource.manager.save(ejercicioAgergar[i]);
+                console.log
+            }
+            console.log("actuyalizado")
+            res.json({
+                data : "Rutina actualizada"
+                    })
+        }else{
+            res.json({
+                data : "ERR-NOAUTORIZADO"
+                    })
+        
+        }
+    }
+
+
+
+
+    public static async eliminar(req : Request<any>, res : Response<any>) : Promise<void>{
+        let idR = req.params.id;
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let idProfesor = tokenDecoded.id;
+        ///// VALIDAR EL PROFESOR /////
+        let runtina = await AppDataSource.manager.findOne(Rutina, {where : {id: idR}, relations : {profesor : true}});
+        let profesor =  await AppDataSource.manager.findOneBy(Usuario, {id: idProfesor});
+
+        if(!profesor || !runtina){
+            return;
+        }
+        /////----ELIMINO LOS EJERCICIOS----////
+        if(await this.validarProfesor(runtina, profesor)){
+            let a = await AppDataSource.manager
+            .createQueryBuilder('ejercicio', 'ejercicio')
+            .delete()
+            .from(Ejercicio)
+            .where('ejercicio.rutinaId = :id', {id: idR})
+            .execute();
+            /////------ELIMINO LA RUTINA------/////
+            let q= 
+            await AppDataSource.manager
+            .createQueryBuilder('rutina', 'rutina')
+            .delete()
+            .from(Rutina)
+            .where('rutina.id = :id', {id: idR})
+            .execute();     
+            res.json({
+                data : "Rutina eliminada"
+                    })
+        }else{
+            res.json({
+                data : "ERR-NOAUTORIZADO"
+                    })
+        }
+
+    }
+
+    public static async obtenerIdProfesor(token : string) {
+        let tokenDecoded = await AuthController.decodificarToken(token);
+    }
+
+    
 }

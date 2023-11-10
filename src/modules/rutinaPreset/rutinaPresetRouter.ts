@@ -15,6 +15,12 @@ rutinaPresetRouter.get('/listar', (req, res) => {
 rutinaPresetRouter.get('/:id/obtener', (req, res) => {
     RutinaPresetController.obtener(req, res);
 });
+rutinaPresetRouter.get('/:id/eliminar', (req, res) => {
+    RutinaPresetController.eliminar(req, res);
+});
 rutinaPresetRouter.post('/agregar', (req, res) => {
     RutinaPresetController.agregar(req, res);
+});
+rutinaPresetRouter.post('/editar', (req, res) => {
+    RutinaPresetController.actualizar(req, res);
 });

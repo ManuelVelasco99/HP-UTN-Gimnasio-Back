@@ -29,7 +29,7 @@ export class Rutina {
     socio!: Usuario
 
     @ManyToOne(() => Usuario , (profesor) => profesor.rutina)
-    profesor!: Usuario
+    profesor!: Usuario | null
 
     
 }
