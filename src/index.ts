@@ -50,14 +50,14 @@ app.use('/precio-cuota'    , precioCuotaRouter     );
 app.use('/rutinaPreset',
     [
         Middlewares.verifyToken,
-        //Middlewares.validarRolDelProfesor
+        Middlewares.validarRolDelProfesorOEncargado
     ],
     rutinaPresetRouter
 );
 app.use('/rutina',
     [
         Middlewares.verifyToken,
-        Middlewares.validarRolDelProfesor
+        Middlewares.validarRolDelProfesorOEncargado
     ],
     rutinaRouter
 );
@@ -80,7 +80,7 @@ app.use('/tipo-clase',
 app.use('/tipo-ejercicio'  , tipoEjercicioRouter   );
 app.use('/usuario'         , usuarioRouter         );
 
-app.listen(port, () => {
+app.listen(Number(port)/*, '192.168.0.237'*/, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
