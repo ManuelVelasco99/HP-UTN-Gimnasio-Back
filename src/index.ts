@@ -19,6 +19,7 @@ import { socioRouter           } from "./modules/socio/socioRouter";
 import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
 import { tipoclaseRouter       } from "./modules/tipoClase/tipoclaseRouter";
 import { usuarioRouter         } from "./modules/usuario/usuarioRouter";
+import { profesorRouter } from "./modules/profesor/profesorRouter";
 
 
 dotenv.config();
@@ -69,6 +70,15 @@ app.use('/socio',
     ],
     socioRouter
 );
+
+app.use('/profesor',
+    [
+        Middlewares.verifyToken,
+        Middlewares.validarRolDelEncargado
+    ],
+    profesorRouter
+);
+
 app.use('/socio-clase'     , socioClaseRouter      );
 app.use('/tipo-clase',
     [
