@@ -33,7 +33,7 @@ export class UsuarioController {
           usuario.dni = req.body.dni;
           usuario.nombre = req.body.nombre;
           usuario.apellido = req.body.apellido;
-          usuario.telefono = req.body.telefono;
+          ///usuario.telefono = req.body.telefono;
           usuario.fecha_comienzo = fechaHoy;
           usuario.dni = req.body.dni;
           usuario.fecha_nacimiento = req.body.fecha_nacimiento;
