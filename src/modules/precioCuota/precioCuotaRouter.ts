@@ -16,3 +16,7 @@ precioCuotaRouter.get('/listar', (req, res) => {
 precioCuotaRouter.post('/agregar', (req, res) => {
     PrecioCuotaController.agregar(req, res);
 });
+
+precioCuotaRouter.post('/:id/eliminar', (req, res) => {
+    PrecioCuotaController.eliminar(req, res);
+});
