@@ -80,7 +80,7 @@ app.use('/tipo-clase',
 app.use('/tipo-ejercicio'  , tipoEjercicioRouter   );
 app.use('/usuario'         , usuarioRouter         );
 
-app.listen(Number(port)/*, '192.168.0.237'*/, () => {
+app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
