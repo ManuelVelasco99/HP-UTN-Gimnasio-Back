@@ -50,14 +50,14 @@ app.use('/precio-cuota'    , precioCuotaRouter     );
 app.use('/rutinaPreset',
     [
         Middlewares.verifyToken,
-        //Middlewares.validarRolDelProfesor
+        Middlewares.validarRolDelProfesorOEncargado
     ],
     rutinaPresetRouter
 );
 app.use('/rutina',
     [
         Middlewares.verifyToken,
-        Middlewares.validarRolDelProfesor
+        Middlewares.validarRolDelProfesorOEncargado
     ],
     rutinaRouter
 );
