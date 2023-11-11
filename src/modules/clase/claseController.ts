@@ -8,12 +8,18 @@ import { Clase         } from "../../entity/Clase";
 export class ClaseController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let clases = await AppDataSource.manager.find(Clase, {relations : {tipoClase : true, usuario : true}});
         
+        let clases = await AppDataSource.getRepository(Clase).createQueryBuilder("clase").select(["clase.id","clase.fecha","clase.horario_inicio", "clase.horario_fin", "clase.tipoClaseId, usuarioId"])
+        .leftJoinAndSelect("clase.tipoClase", "tipoClase")
+        .leftJoinAndSelect("clase.usuario", "usuario")
+        .getMany();
+
         let clasesParseadas : any = clases;
 
         clasesParseadas.forEach((element : any) => {
             element["clase"] = element.tipoClase.descripcion;
+            element["cupo"] = element.tipoClase.cupo;
+            element["profesor"] = element.usuario.nombre +" "+ element.usuario.apellido;
         });
 
         res.json({
