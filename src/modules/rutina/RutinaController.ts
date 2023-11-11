@@ -22,7 +22,7 @@ export class RutinaController {
         .select(' rut.id"id", socio.nombre"nombre_socio", profe.nombre"nombre_profesor", date_format(rut.fecha_creacion, "%Y-%m-%d")"fecha_creacion", rut.nombre"nombre" ')
         .innerJoin('rut.socio', 'socio')
         .innerJoin('rut.profesor', 'profe')
-        .where('socio.nombre like :nombre or socio.apellido like :nombre', {nombre : "%"+req.query.nombresocio+"%"})
+        .where(`CONCAT(socio.nombre, ' ', socio.apellido) LIKE :nombre_apellido`, { nombre_apellido: "%"+req.query.nombresocio+"%" })
         .getRawMany();
         res.json({
             data : rutinas
