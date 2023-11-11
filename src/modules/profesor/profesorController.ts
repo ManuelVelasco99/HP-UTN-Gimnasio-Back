@@ -93,7 +93,6 @@ export class ProfesorController {
     public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
 
         let profesor = new Usuario;
-        console.log("HOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         //TODO: Validar formato dni
         profesor.id = req.body.id;
         profesor.dni = req.body.formValue.dni;
@@ -144,7 +143,7 @@ export class ProfesorController {
         ////profesor.estado = true;
 
         ////profesor.rol = rol;
-        console.log("profesor", profesor)
+        ///console.log("profesor", profesor)
 
         try {
             await AppDataSource.manager
