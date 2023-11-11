@@ -7,16 +7,22 @@ import { Rutina              } from "../../entity/Rutina";
 import { Usuario             } from "../../entity/Usuario";
 import { TipoEjercicio } from "../../entity/TipoEjercicio";
 import { AuthController } from "../auth/AuthController";
+import { FindManyOptions, Like } from "typeorm";
 
 export class RutinaController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        //let rutinas = await AppDataSource.manager.find(Rutina);
-        let rutinas = await AppDataSource.manager
+        let nombreyap;
+        if(!req.query.nombresocio){
+            req.query.nombresocio="";
+        }
+    
+         let rutinas = await AppDataSource.manager
         .createQueryBuilder('rutina', 'rut')
         .select(' rut.id"id", socio.nombre"nombre_socio", profe.nombre"nombre_profesor", date_format(rut.fecha_creacion, "%Y-%m-%d")"fecha_creacion", rut.nombre"nombre" ')
         .innerJoin('rut.socio', 'socio')
         .innerJoin('rut.profesor', 'profe')
+        .where('socio.nombre like :nombre or socio.apellido like :nombre', {nombre : "%"+req.query.nombresocio+"%"})
         .getRawMany();
         res.json({
             data : rutinas
