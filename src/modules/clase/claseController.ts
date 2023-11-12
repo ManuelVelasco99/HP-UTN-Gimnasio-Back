@@ -89,11 +89,29 @@ export class ClaseController {
     }
 
     public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
-        let clase = await AppDataSource.manager.findOneBy(Clase,{ id: req.params.id});
+        let id = req.params.id;
+        let clases = await AppDataSource.getRepository(Clase).createQueryBuilder("clase").select(["clase.id","clase.fecha","clase.horario_inicio", "clase.horario_fin", "clase.tipoClaseId, usuarioId"])
+        .leftJoinAndSelect("clase.tipoClase", "tipoClase")
+        .leftJoinAndSelect("clase.usuario", "usuario")
+        .where("clase.id = :id", { id })
+        .getOne();
         
-
-        res.json({
-            data : clase
-        })
+        if (clases) {
+            const claseParseada = {
+              id: clases.id,
+              fecha: clases.fecha,
+              horario_inicio: clases.horario_inicio,
+              horario_fin: clases.horario_fin,
+              tipoClase: clases.tipoClase.descripcion,
+              cupo: clases.tipoClase.cupo,
+              profesor: `${clases.usuario.nombre} ${clases.usuario.apellido}`
+            };
+          
+            res.json({
+              data: claseParseada
+            });
+          } else {
+            res.status(404).json({ error: 'Clase no encontrada' });
+          }
     }
 }
