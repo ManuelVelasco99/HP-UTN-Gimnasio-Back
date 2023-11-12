@@ -87,4 +87,13 @@ export class ClaseController {
             data : clase
         })
     }
+
+    public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
+        let clase = await AppDataSource.manager.findOneBy(Clase,{ id: req.params.id});
+        
+
+        res.json({
+            data : clase
+        })
+    }
 }
