@@ -20,3 +20,7 @@ claseRouter.post('/agregar', (req, res) => {
 claseRouter.post('/:id/actualizar', (req, res) => {
     ClaseController.actualizar(req, res);
 });
+
+claseRouter.get('/:id/obtener', (req, res) => {
+    ClaseController.obtener(req, res);
+});
