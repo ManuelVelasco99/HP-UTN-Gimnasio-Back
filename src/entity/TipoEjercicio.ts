@@ -24,8 +24,8 @@ export class TipoEjercicio {
     nombre!: string
 
     @Column({
-        type : "tinytext",
-        nullable: true,
+        length: 1000,
+        nullable : true
     })
     descripcion!: string
 

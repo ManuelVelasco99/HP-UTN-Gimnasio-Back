@@ -1,7 +1,9 @@
-import { Column, Double, OneToMany                 } from "typeorm"
+import { Column,                } from "typeorm"
+import { Double                 } from "typeorm"
+import { OneToMany              } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
-///import { TipoEjercicio } from "./TipoEjercicio" //// ACA IMPORTAR EL EJERCICIO
+import { CuotaMensual           } from "./CuotaMensual"
 
 @Entity({name : 'precio_cuota'})
 export class PrecioCuota {
@@ -24,5 +26,8 @@ export class PrecioCuota {
 
     @Column()
     estado! : boolean
+
+    @OneToMany(() => CuotaMensual , (cuota_mensual) => cuota_mensual.socio)
+    cuotas_mensuales!: CuotaMensual[] | null
 
 }

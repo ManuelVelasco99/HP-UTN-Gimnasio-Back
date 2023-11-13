@@ -5,8 +5,11 @@ import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
 import { Rol                    } from "./Rol"
 import { Rutina                 } from "./Rutina"
+import { Clase                  } from "./Clase"
+import { CuotaMensual           } from "./CuotaMensual"
 import { RutinaPreset           } from "./RutinaPreset"   
-import { Clase } from "./Clase"
+import { Clase                  } from "./Clase"
+
 
 @Entity({name : 'usuario'})
 export class Usuario {
@@ -64,4 +67,8 @@ export class Usuario {
 
     @OneToMany(() => Clase, (clase) => clase.usuario)
     clases! : Clase[] | null
+
+    @OneToMany(() => CuotaMensual , (cuota_mensual) => cuota_mensual.socio)
+    cuotas_mensuales!: CuotaMensual[] | null
+
 }

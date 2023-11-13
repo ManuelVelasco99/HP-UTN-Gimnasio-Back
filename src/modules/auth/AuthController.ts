@@ -54,6 +54,7 @@ export class AuthController {
     public static async obtenerMisDatos(req : Request<any>, res : Response<any>) : Promise<void> {
         let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
         
+
         let usuario = await AppDataSource.manager.findOne(
             Usuario,
             {
@@ -65,6 +66,7 @@ export class AuthController {
                 ]
             }
         );
+
 
         res.json({
             data: {
