@@ -130,10 +130,24 @@ export class CuotaMensualController {
 
         const totalPagadas = await countPagadasQuery;
 
-        res.json({
-            totalRegistros,
-            totalPagadas
-        });
+
+        const result = await AppDataSource.manager
+        .createQueryBuilder(CuotaMensual, "cuotaMensual")
+        .select([
+            `DATE_FORMAT(cuotaMensual.fecha_pago, '%Y-%m') AS mes`,
+            `COUNT(*) AS totalRegistros`,
+            `SUM(cuotaMensual.estado = 1) AS totalPagadas`,
+        ])
+        .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio, fechaFin })
+        .groupBy("mes")
+        .getRawMany();
+
+            res.json({
+                totalRegistros,
+                totalPagadas,
+                result,
+
+            });
     }
     
 }
