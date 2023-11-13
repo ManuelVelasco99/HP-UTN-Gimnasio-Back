@@ -7,6 +7,9 @@ import { Rol                    } from "./Rol"
 import { Rutina                 } from "./Rutina"
 import { Clase                  } from "./Clase"
 import { CuotaMensual           } from "./CuotaMensual"
+import { RutinaPreset           } from "./RutinaPreset"   
+import { Clase                  } from "./Clase"
+
 
 @Entity({name : 'usuario'})
 export class Usuario {
@@ -50,11 +53,17 @@ export class Usuario {
     @Column()
     estado! : boolean
 
-    @ManyToOne( () => Rol, (rol) => rol.usuarios)
+    @ManyToOne( () => Rol, (rol) => rol.usuarios,{ nullable: false })
     rol!: Rol | null
 
     @OneToMany(() => Rutina , (rutina) => rutina.socio)
     rutina!: Rutina
+
+    @OneToMany(() => Rutina , (rutina) => rutina.profesor)
+    rutina_profesor!: Rutina
+    
+    @OneToMany(() => RutinaPreset , (rutina_preset) => rutina_preset.profesor)
+    rutina_preset_profesor!: RutinaPreset
 
     @OneToMany(() => Clase, (clase) => clase.usuario)
     clases! : Clase[] | null

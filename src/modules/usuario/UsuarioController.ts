@@ -1,23 +1,29 @@
-import { AppDataSource } from "../../data-source";
-import { Usuario           } from "../../entity/Usuario";
-import { Request       } from "express-serve-static-core";
-import { Response      } from "express-serve-static-core";
-import { Rol } from "../../entity/Rol";
+import { AppDataSource      } from "../../data-source";
+import { Usuario            } from "../../entity/Usuario";
+import { Request            } from "express-serve-static-core";
+import { Response           } from "express-serve-static-core";
+import { Rol                } from "../../entity/Rol";
 import { createQueryBuilder } from "typeorm";
 
 
 export class UsuarioController {
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
        //let usuarios = await AppDataSource.manager.find(Usuario);
+       
+       try {
         let usuarios = await AppDataSource.manager
             
             .createQueryBuilder('usuario', 'u')
             .select('u.id, u.dni, u.nombre,u.apellido, u.telefono, date_format(u.fecha_nacimiento, "%Y-%m-%d")"fecha_nacimiento", date_format(u.fecha_comienzo, "%Y-%m-%d")"fecha_comienzo", u.email, r.nombre "rol"')
             .innerJoin('u.rol', 'r')
             .getRawMany();
-        res.json({
-            data : usuarios /* DATE_FORMAT(date,'%y-%m-%d')*/
-        })
+            res.json({
+                data : usuarios 
+            })
+       } catch (error) {
+        res.json({data: "error"})
+       }
+        
     }
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let usuario = new Usuario();
@@ -27,7 +33,7 @@ export class UsuarioController {
           usuario.dni = req.body.dni;
           usuario.nombre = req.body.nombre;
           usuario.apellido = req.body.apellido;
-          usuario.telefono = req.body.telefono;
+          ///usuario.telefono = req.body.telefono;
           usuario.fecha_comienzo = fechaHoy;
           usuario.dni = req.body.dni;
           usuario.fecha_nacimiento = req.body.fecha_nacimiento;
@@ -67,16 +73,32 @@ export class UsuarioController {
 
     }   
 
+    public static async obtenerDni(req : Request<any>, res : Response<any>) : Promise<void>{
+        let socio = await AppDataSource.manager.findOneBy(Usuario, {dni: req.params.dni});
+        //let socio = await AppDataSource.manager.findOneBy(SocioClase, {usuario: usu});
+        console.log(socio);
+        res.json({
+            data : socio
+        })
+    }
+
     public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
         let usuarioId = req.params.id;
-        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ id: usuarioId });
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ id: usuarioId});
 
         res.json({
             data : usuario
         })
     }
 
+    public static async validarDniDisponible(dni : string) : Promise<boolean> {
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ dni: dni });
+        return usuario ? false : true;
+    }
 
-
+    public static async validarEmailDisponible(email : string) : Promise<boolean> {
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{ email: email });
+        return usuario ? false : true;
+    }
 
 }
