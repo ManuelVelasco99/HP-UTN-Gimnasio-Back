@@ -65,4 +65,18 @@ export class Middlewares {
         
     }
 
+    public static async validarRolDelSocio(req : Request<any>, res : Response<any>, next : NextFunction) : Promise<void> {
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+
+        if(tokenDecoded.rol_id === 4){
+            next();
+        }
+        else{
+            res.status(403).json({
+                message: "Acceso denegado"
+            });
+        }
+        
+    }
+
 }
