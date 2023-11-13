@@ -13,4 +13,15 @@ socioRouter.post(
     SocioController.agregar
 );
 
-
+socioRouter.post(
+    '/actualizar',
+    SocioController.actualizar
+);
+socioRouter.get(
+    '/:id/obtener',
+    SocioController.obtener
+);
+socioRouter.get(
+    '/:id/eliminar',
+    SocioController.eliminar
+);
