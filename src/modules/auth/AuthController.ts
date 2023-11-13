@@ -84,6 +84,8 @@ export class AuthController {
         return jwt.decode(token);
     }
 
-    
+    public static async obtenerDatosUsuarioPorId(id : number){
+        return await AppDataSource.manager.findOneBy(Usuario,{id: id});
+    }
 
 }
