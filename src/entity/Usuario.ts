@@ -8,7 +8,6 @@ import { Rutina                 } from "./Rutina"
 import { Clase                  } from "./Clase"
 import { CuotaMensual           } from "./CuotaMensual"
 import { RutinaPreset           } from "./RutinaPreset"   
-import { Clase                  } from "./Clase"
 
 
 @Entity({name : 'usuario'})
