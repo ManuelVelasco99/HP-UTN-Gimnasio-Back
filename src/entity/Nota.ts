@@ -32,7 +32,7 @@ export class Nota {
     })
     comentario!: string
 
-    @ManyToOne(() => Ejercicio, (ejercicio) => ejercicio.nota)
+    @ManyToOne(() => Ejercicio, (ejercicio) => ejercicio.notas)
     ejercicio!: Ejercicio
 
 }

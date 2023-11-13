@@ -14,6 +14,7 @@ import { Response              } from 'express';
 import { rolRouter             } from "./modules/rol/rolRouter";
 import { rutinaPresetRouter    } from "./modules/rutinaPreset/rutinaPresetRouter";
 import { rutinaRouter          } from "./modules/rutina/rutinaRouter";
+import { rutinaSocioRouter     } from "./modules/rutinaSocio/rutinaSocioRouter";
 import { socioClaseRouter      } from "./modules/socioClase/socioClaseRouter";
 import { socioRouter           } from "./modules/socio/socioRouter";
 import { tipoEjercicioRouter   } from "./modules/tipoEjercicio/tipoEjercicioRouter";
@@ -61,6 +62,13 @@ app.use('/rutina',
         Middlewares.validarRolDelProfesorOEncargado
     ],
     rutinaRouter
+);
+app.use('/rutina-socio',
+    [
+        Middlewares.verifyToken,
+        Middlewares.validarRolDelSocio
+    ],
+    rutinaSocioRouter
 );
 app.use('/rol'             , rolRouter             );
 app.use('/socio',
