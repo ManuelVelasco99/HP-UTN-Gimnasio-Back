@@ -111,4 +111,29 @@ export class CuotaMensualController {
             });
         }
     }
+
+    public static async reportePagosCuota(req: Request<any>, res: Response<any>): Promise<void> {
+        const fechaInicio = req.body.fechaInicio;
+        const fechaFin = req.body.fechaFin;
+        
+
+        const countQuery = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
+            .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio: fechaInicio, fechaFin: fechaFin })
+            .getCount();
+
+        const totalRegistros = await countQuery;
+
+        const countPagadasQuery = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
+            .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio: fechaInicio, fechaFin: fechaFin  })
+            .andWhere("cuotaMensual.estado = :estado", { estado: true })
+            .getCount();
+
+        const totalPagadas = await countPagadasQuery;
+
+        res.json({
+            totalRegistros,
+            totalPagadas
+        });
+    }
+    
 }
