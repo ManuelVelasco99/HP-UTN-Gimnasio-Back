@@ -22,7 +22,7 @@ export class CuotaMensualController {
 
         cuotaMensual.fecha_pago= new Date();
 
-        let dniSocio = req.body.dniSocio;
+        let dniSocio = req.body.socio.dniSocio;
         
         let socio : Usuario | null = null;
         socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
@@ -30,13 +30,7 @@ export class CuotaMensualController {
             cuotaMensual.socio=socio;
         }
 
-        let idPrecioCuota= await AppDataSource.manager
-            .createQueryBuilder('precio_cuota','pc')
-            .select('pc.id')
-            .where("pc.fecha_desde< = :hoy", { hoy: new Date() })
-            .orderBy("pc.fecha_desde", "DESC")
-            .limit(1)
-            .getRawOne()
+        let idPrecioCuota =req.body.precio_cuota.id
 
         let precio_cuota : PrecioCuota | null = null;
         if(idPrecioCuota){
@@ -104,7 +98,7 @@ export class CuotaMensualController {
             .createQueryBuilder('precio_cuota','pc')
             .select('pc.id')
             .where("pc.fecha_desde<= :hoy", { hoy: formattedToday })
-            //Falta validar el estado
+            .andWhere("pc.estado=1")
             .orderBy("pc.fecha_desde", "DESC")
             .limit(1)
             .getRawOne()
