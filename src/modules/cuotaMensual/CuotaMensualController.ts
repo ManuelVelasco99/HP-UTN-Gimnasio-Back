@@ -5,6 +5,7 @@ import { Request        } from "express-serve-static-core";
 import { Response       } from "express-serve-static-core";
 import { Usuario        } from "../../entity/Usuario";
 import { AuthController } from "../auth/AuthController";
+import { MoreThanOrEqual } from "typeorm";
 
 export class CuotaMensualController {
 
@@ -136,4 +137,61 @@ export class CuotaMensualController {
             });
         }
     }
+
+    public static async reportePagosCuota(req: Request<any>, res: Response<any>): Promise<void> {
+        const fechaInicio = req.body.fechaInicio;
+        const fechaFin = req.body.fechaFin;
+        
+
+        const countQuery = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
+            .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio: fechaInicio, fechaFin: fechaFin })
+            .getCount();
+
+        const totalRegistros = await countQuery;
+
+        const countPagadasQuery = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
+            .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio: fechaInicio, fechaFin: fechaFin  })
+            .andWhere("cuotaMensual.estado = :estado", { estado: true })
+            .getCount();
+
+        const totalPagadas = await countPagadasQuery;
+
+
+        // Paso 1: Obtener los distintos precios de las cuotas.
+        const preciosCuotas = await AppDataSource.manager.find(PrecioCuota, {
+            select: ["id", "monto"],
+            where: {
+                fecha_desde: MoreThanOrEqual(fechaInicio), // Asegurarse de que estos nombres sean correctos según tu entidad PrecioCuota.
+                estado: true
+            }
+        });
+
+        // Paso 2: Utilizar los precios en la consulta principal.
+        const queryBuilder = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
+            .select([
+                `DATE_FORMAT(cuotaMensual.fecha_pago, '%Y-%m') AS mes`,
+                `COUNT(*) AS totalRegistros`,
+                `SUM(cuotaMensual.estado = 1) AS totalPagadas`,
+                `SUM(precioCuota.monto) AS totalMontosBrutos`,
+                `SUM(CASE WHEN cuotaMensual.estado = 1 THEN precioCuota.monto ELSE 0 END) AS totalMontosReal`
+            ])
+            .leftJoin("cuotaMensual.precio_cuota", "precioCuota")
+            .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio, fechaFin })
+            .groupBy("mes")
+            .orderBy("mes");
+
+        // Agregar el filtro para los precios obtenidos.
+        queryBuilder.andWhere("precioCuota.id IN (:...precios)", { precios: preciosCuotas.map(precio => precio.id) });
+
+        // Obtener los resultados.
+        const resultados = await queryBuilder.getRawMany();
+
+        res.json({
+            totalRegistros,
+            totalPagadas,
+            resultados,
+
+        });
+    }
+    
 }

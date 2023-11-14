@@ -5,7 +5,7 @@ export const cuotaMensualRouter = Router();
 
 cuotaMensualRouter.get('/', (req, res) => {
     res.json({
-        data : "Precio Cuota route"
+        data : "Cuota Mensual route"
     });
 });
 
@@ -21,3 +21,7 @@ cuotaMensualRouter.post(
     '/validar-pago',
     CuotaMensualController.validarPago
 );
+
+cuotaMensualRouter.post('/reportePagosCuota', (req, res) => {
+    CuotaMensualController.reportePagosCuota(req, res);
+});
