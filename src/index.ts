@@ -85,7 +85,6 @@ app.use('/socio',
 app.use('/profesor',
     [
         Middlewares.verifyToken,
-        Middlewares.validarRolDelEncargado
     ],
     profesorRouter
 );
@@ -94,7 +93,6 @@ app.use('/socio-clase'     , socioClaseRouter      );
 app.use('/tipo-clase',
     [
         Middlewares.verifyToken,
-        Middlewares.validarRolDelEncargado
     ],
     tipoclaseRouter
 );

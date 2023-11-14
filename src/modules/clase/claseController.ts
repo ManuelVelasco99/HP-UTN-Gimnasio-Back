@@ -102,9 +102,9 @@ export class ClaseController {
               fecha: clases.fecha,
               horario_inicio: clases.horario_inicio,
               horario_fin: clases.horario_fin,
-              tipoClase: clases.tipoClase.descripcion,
+              tipoClase: clases.tipoClase.id,
               cupo: clases.tipoClase.cupo,
-              profesor: `${clases.usuario.nombre} ${clases.usuario.apellido}`
+              profesor: clases.usuario?.id
             };
           
             res.json({
