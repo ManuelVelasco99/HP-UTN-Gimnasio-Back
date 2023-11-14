@@ -5,7 +5,7 @@ import { Nota               } from "../../entity/Nota";
 import { Request            } from "express-serve-static-core";
 import { Response           } from "express-serve-static-core";
 import { Rutina             } from "../../entity/Rutina";
-
+import { TipoEjercicio } from "../../entity/TipoEjercicio";
 export class RutinaSocioController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
@@ -25,6 +25,10 @@ export class RutinaSocioController {
                 INNER JOIN tipo_ejercicio ON tipo_ejercicio.id = ejercicio.tiposEjercicioId
                 WHERE ejercicio.rutinaId = ${element.id}
             `);
+            for(let i =0; i< ejercicios.length; i++){
+                ejercicios[i].multimedia = generarLinkEnbebido(ejercicios[i].multimedia );
+            }
+            console.log(ejercicios)
             element.ejercicios = ejercicios;
             rutinas[index].ejercicios = ejercicios;
             for (let indexE = 0; indexE < ejercicios.length; indexE++) {
@@ -39,8 +43,8 @@ export class RutinaSocioController {
                 .getMany();
                 element.ejercicios[indexE].notas = notas;
             }
-
         }
+
 
         res.json({
             data : rutinas
@@ -67,4 +71,18 @@ export class RutinaSocioController {
         })
     }
 
+}
+
+function generarLinkEnbebido(link:string) : string {
+    let nuevoLink : string =""
+    if(link){
+        for (let i = 0; i < link.indexOf("watch?v="); i++){
+            nuevoLink += (link[i])
+        }
+        nuevoLink+="embed/";
+        for (let i = (link.indexOf("watch?v=")+8); i <link.length ; i++){
+            nuevoLink += (link[i])
+        }
+    }
+    return nuevoLink
 }

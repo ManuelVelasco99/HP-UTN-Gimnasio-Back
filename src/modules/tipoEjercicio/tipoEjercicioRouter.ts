@@ -20,6 +20,9 @@ tipoEjercicioRouter.post('/agregar', (req, res) => {
 tipoEjercicioRouter.post('/:id/editar', (req, res) => {
     TipoEjercicioController.editar(req, res);
 });
+tipoEjercicioRouter.get('/:id/eliminar', (req, res) => {
+    TipoEjercicioController.eliminar(req, res);
+});
 
 tipoEjercicioRouter.get('/:id/obtener', (req, res) => {
     TipoEjercicioController.obtener(req, res);

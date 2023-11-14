@@ -33,5 +33,5 @@ export class TipoEjercicio {
     maquinaElemento!: MaquinaElemento | null
 
     @OneToMany(() => Ejercicio, (ejercicio) => ejercicio.tiposEjercicio)
-    ejercicio!: Ejercicio | null
+    ejercicio!: Ejercicio[] | null
 }
