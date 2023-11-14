@@ -89,16 +89,41 @@ export class CuotaMensualController {
 
 
         try {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1; // Months start at 0!
+            let dd = today.getDate();
+
+            const formattedToday = yyyy+"-"+mm+"-"+dd;
+
+
             socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
+            
+            let idPrecioCuota= await AppDataSource.manager
+            .createQueryBuilder('precio_cuota','pc')
+            .select('pc.id')
+            .where("pc.fecha_desde<= :hoy", { hoy: formattedToday })
+            //Falta validar el estado
+            .orderBy("pc.fecha_desde", "DESC")
+            .limit(1)
+            .getRawOne()
+
+            let precio_cuota : PrecioCuota | null = null;
+            if(idPrecioCuota){
+                precio_cuota=await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota.pc_id });
+            }
+
             if(socio){
                 res.json({
                     data : {
                         socio : socio,
-                        //cuota : ""
+                        precio_cuota : precio_cuota
                     }
                 });
             }
             else{
+                console.log("entro en el error");
+
                 res.status(404).json({
                     error : "error"
                 });
