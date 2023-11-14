@@ -20,7 +20,7 @@ export class RutinaSocioController {
         for (let index = 0; index < rutinas.length; index++) {
             const element = rutinas[index];
             let ejercicios : any = await AppDataSource.manager.query(`
-                SELECT ejercicio.*, tipo_ejercicio.descripcion, tipo_ejercicio.nombre
+                SELECT ejercicio.*, tipo_ejercicio.descripcion, tipo_ejercicio.nombre, tipo_ejercicio.multimedia
                 FROM ejercicio
                 INNER JOIN tipo_ejercicio ON tipo_ejercicio.id = ejercicio.tiposEjercicioId
                 WHERE ejercicio.rutinaId = ${element.id}
