@@ -5,6 +5,7 @@ import { Request        } from "express-serve-static-core";
 import { Response       } from "express-serve-static-core";
 import { Usuario        } from "../../entity/Usuario";
 import { AuthController } from "../auth/AuthController";
+import { MoreThanOrEqual } from "typeorm";
 
 export class CuotaMensualController {
 
@@ -21,7 +22,7 @@ export class CuotaMensualController {
 
         cuotaMensual.fecha_pago= new Date();
 
-        let dniSocio = req.body.dniSocio;
+        let dniSocio = req.body.socio.dniSocio;
         
         let socio : Usuario | null = null;
         socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
@@ -29,13 +30,7 @@ export class CuotaMensualController {
             cuotaMensual.socio=socio;
         }
 
-        let idPrecioCuota= await AppDataSource.manager
-            .createQueryBuilder('precio_cuota','pc')
-            .select('pc.id')
-            .where("pc.fecha_desde< = :hoy", { hoy: new Date() })
-            .orderBy("pc.fecha_desde", "DESC")
-            .limit(1)
-            .getRawOne()
+        let idPrecioCuota =req.body.precio_cuota.id
 
         let precio_cuota : PrecioCuota | null = null;
         if(idPrecioCuota){
@@ -89,16 +84,41 @@ export class CuotaMensualController {
 
 
         try {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1; // Months start at 0!
+            let dd = today.getDate();
+
+            const formattedToday = yyyy+"-"+mm+"-"+dd;
+
+
             socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
+            
+            let idPrecioCuota= await AppDataSource.manager
+            .createQueryBuilder('precio_cuota','pc')
+            .select('pc.id')
+            .where("pc.fecha_desde<= :hoy", { hoy: formattedToday })
+            .andWhere("pc.estado=1")
+            .orderBy("pc.fecha_desde", "DESC")
+            .limit(1)
+            .getRawOne()
+
+            let precio_cuota : PrecioCuota | null = null;
+            if(idPrecioCuota){
+                precio_cuota=await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota.pc_id });
+            }
+
             if(socio){
                 res.json({
                     data : {
                         socio : socio,
-                        //cuota : ""
+                        precio_cuota : precio_cuota
                     }
                 });
             }
             else{
+                console.log("entro en el error");
+
                 res.status(404).json({
                     error : "error"
                 });
@@ -130,9 +150,41 @@ export class CuotaMensualController {
 
         const totalPagadas = await countPagadasQuery;
 
+
+        // Paso 1: Obtener los distintos precios de las cuotas.
+        const preciosCuotas = await AppDataSource.manager.find(PrecioCuota, {
+            select: ["id", "monto"],
+            where: {
+                fecha_desde: MoreThanOrEqual(fechaInicio), // Asegurarse de que estos nombres sean correctos según tu entidad PrecioCuota.
+                estado: true
+            }
+        });
+
+        // Paso 2: Utilizar los precios en la consulta principal.
+        const queryBuilder = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
+            .select([
+                `DATE_FORMAT(cuotaMensual.fecha_pago, '%Y-%m') AS mes`,
+                `COUNT(*) AS totalRegistros`,
+                `SUM(cuotaMensual.estado = 1) AS totalPagadas`,
+                `SUM(precioCuota.monto) AS totalMontosBrutos`,
+                `SUM(CASE WHEN cuotaMensual.estado = 1 THEN precioCuota.monto ELSE 0 END) AS totalMontosReal`
+            ])
+            .leftJoin("cuotaMensual.precio_cuota", "precioCuota")
+            .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio, fechaFin })
+            .groupBy("mes")
+            .orderBy("mes");
+
+        // Agregar el filtro para los precios obtenidos.
+        queryBuilder.andWhere("precioCuota.id IN (:...precios)", { precios: preciosCuotas.map(precio => precio.id) });
+
+        // Obtener los resultados.
+        const resultados = await queryBuilder.getRawMany();
+
         res.json({
             totalRegistros,
-            totalPagadas
+            totalPagadas,
+            resultados,
+
         });
     }
     
