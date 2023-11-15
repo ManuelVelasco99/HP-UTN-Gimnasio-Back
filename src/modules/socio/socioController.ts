@@ -203,7 +203,7 @@ export class SocioController {
         let socioDNI = req.params.dni; /// cuotas_mensuales
         let socio = await AppDataSource.manager.findOne(Usuario,{ where:  {dni: socioDNI}, relations: {rol:true} });
         let fechaHoy  = new Date();
-        let habilitado = false;
+        
 
         let fechaUltimoPeriodoPago : any;
         if(!socio || socio.rol?.id !=4){
@@ -224,6 +224,7 @@ export class SocioController {
         let fechaSocio  = new Date(fechaUltimoPeriodoPago[0].fecha);
 
 
+        let habilitado = false;
         //// Si el ultimo periodo de pago que tiene es igual al mes anterior al de hoy 
         if(fechaSocio.getMonth()+1 == fechaHoy.getMonth()  
         //// Y el año del ultimo periodo de pago es igual a este año
