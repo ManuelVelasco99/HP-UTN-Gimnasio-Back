@@ -9,6 +9,7 @@ import   express                 from 'express';
 import { Express               } from 'express';
 import { maquinaElementoRouter } from "./modules/maquinaElemento/maquinaElementoRouter";
 import { Middlewares           } from "./middlewares/verifyToken";
+import { misClasesRouter       } from "./modules/mis-clases/misClasesRouter";
 import { precioCuotaRouter     } from "./modules/precioCuota/precioCuotaRouter";
 import { Request               } from 'express';
 import { Response              } from 'express';
@@ -50,6 +51,12 @@ app.use('/maquina-elemento',
         Middlewares.validarRolDelEncargado
     ],
     maquinaElementoRouter
+);
+app.use('/mis-clases',
+    [
+        Middlewares.verifyToken,
+    ],
+    misClasesRouter
 );
 app.use('/precio-cuota'    , precioCuotaRouter     );
 app.use('/rutinaPreset',
