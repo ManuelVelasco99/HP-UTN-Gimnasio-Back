@@ -197,4 +197,60 @@ export class SocioController {
         })
     }
 
+
+
+    public static async validarIngreso(req : Request<any>, res : Response<any>) : Promise<void> {
+        let socioDNI = req.params.dni; /// cuotas_mensuales
+        let socio = await AppDataSource.manager.findOne(Usuario,{ where:  {dni: socioDNI}, relations: {rol:true} });
+        let fechaHoy  = new Date();
+        let habilitado = false;
+
+        let fechaUltimoPeriodoPago : any;
+        if(!socio || socio.rol?.id !=4){
+            res.json({
+                data : ["No se encontró el socio", 3 ]
+            })
+        return
+        }else{
+            fechaUltimoPeriodoPago = await AppDataSource.manager.query(`
+            SELECT max(cm.fecha_periodo)'fecha' FROM cuota_mensual cm where cm.socioId=${socio.id}`);
+            if(!fechaUltimoPeriodoPago){ 
+                res.json({
+                    data : [ socio?.nombre + " " + socio?.apellido,2]
+                })
+                return
+            }
+        }
+        let fechaSocio  = new Date(fechaUltimoPeriodoPago[0].fecha);
+
+
+        //// Si el ultimo periodo de pago que tiene es igual al mes anterior al de hoy 
+        if(fechaSocio.getMonth()+1 == fechaHoy.getMonth()  
+        //// Y el año del ultimo periodo de pago es igual a este año
+        && fechaSocio.getFullYear() == fechaHoy.getFullYear()
+        //// Y Si hoy todavia no paso el día 15 del mes
+        && fechaHoy.getDate() <= 15){
+                habilitado = true;
+        //// Si el mes del ultimo periodo pago es mayor o igual al mes actual
+        }else if((fechaSocio.getMonth() >= fechaHoy.getMonth() 
+        //// Y si el año es igual al año que corre
+        && fechaSocio.getFullYear() == fechaHoy.getFullYear())
+         //// O si el año del ultimo periodo de pago es mayor al año actual 
+         //// (puede pasar que adelante cuotas del proximo año y sea el mes de ultimo periodo sea menor al actual)
+        || fechaSocio.getFullYear()> fechaHoy.getFullYear())
+        {
+            habilitado = true; 
+        }
+        if(habilitado){
+            res.json({
+                data : ["",1]
+            })
+        }
+        else{
+            res.json({
+                data : [ socio?.nombre + " " + socio?.apellido  ,2]
+            })
+        }
+      
+    }
 }
