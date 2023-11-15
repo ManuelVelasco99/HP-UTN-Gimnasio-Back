@@ -3,11 +3,20 @@ import { MaquinaElemento } from "../../entity/MaquinaElemento";
 import { Request         } from "express-serve-static-core";
 import { Response        } from "express-serve-static-core";
 import { TipoEjercicio   } from "../../entity/TipoEjercicio";
+import { FindManyOptions, Like } from "typeorm";
 
 export class TipoEjercicioController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let tiposEjercicio = await AppDataSource.manager.find(TipoEjercicio);
+        let options : FindManyOptions<TipoEjercicio> = {}
+
+        if(req.query.nombre){
+            options.where = {
+                nombre: Like("%"+req.query.nombre+"%")
+            }
+        }
+
+        let tiposEjercicio = await AppDataSource.manager.find(TipoEjercicio, options);
         for(let i =0; i<tiposEjercicio.length; i++){
             tiposEjercicio[i].multimedia = generarLinkEnbebido(tiposEjercicio[i].multimedia);
         }

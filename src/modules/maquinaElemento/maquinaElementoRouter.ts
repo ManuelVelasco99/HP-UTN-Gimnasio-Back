@@ -25,7 +25,7 @@ maquinaElementoRouter.post(
     MaquinaElementoController.editar
 );
 
-maquinaElementoRouter.post(
+maquinaElementoRouter.get(
     '/:id/eliminar',
     MaquinaElementoController.eliminar
 );
