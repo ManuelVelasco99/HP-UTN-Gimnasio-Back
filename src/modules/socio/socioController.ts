@@ -4,6 +4,8 @@ import { Response          } from "express-serve-static-core";
 import { Rol               } from "../../entity/Rol";
 import { Usuario           } from "../../entity/Usuario";
 import { UsuarioController } from "../usuario/UsuarioController";
+import { SocioClase } from "../../entity/SocioClase";
+import { socioRouter } from "./socioRouter";
 
 export class SocioController {
 
@@ -202,6 +204,7 @@ export class SocioController {
     public static async validarIngreso(req : Request<any>, res : Response<any>) : Promise<void> {
         let socioDNI = req.params.dni; /// cuotas_mensuales
         let socio = await AppDataSource.manager.findOne(Usuario,{ where:  {dni: socioDNI}, relations: {rol:true} });
+        
         let fechaHoy  = new Date();
         
 
@@ -242,7 +245,26 @@ export class SocioController {
         {
             habilitado = true; 
         }
+        let clasesociohoy  = await AppDataSource.manager.query(`
+                        SELECT sc.id 'id', cl.fecha 'fecha' FROM socio_clase sc
+                        inner join clase cl on cl.id = sc.claseId
+                        where cl.fecha = curdate() and 
+                        cl.horario_fin > curtime() and
+                        sc.usuarioId = ${socio.id}`);
         if(habilitado){
+            if(clasesociohoy){
+                for(let i = 0; i < clasesociohoy.length ; i++){
+                    await AppDataSource.manager
+                    .createQueryBuilder()
+                    .update(SocioClase)
+                    .set({
+                        asistencia : true
+                    })
+                    .where("id = :id",{id: clasesociohoy[i].id})
+                    .execute();
+                }
+            }
+
             res.json({
                 data : ["",1]
             })
