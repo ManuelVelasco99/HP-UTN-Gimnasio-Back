@@ -1,4 +1,5 @@
 import { AppDataSource      } from "../../data-source";
+import { Clase              } from "../../entity/Clase";
 import { AuthController     } from "../auth/AuthController";
 import { Request            } from "express-serve-static-core";
 import { Response           } from "express-serve-static-core";
@@ -59,9 +60,38 @@ export class MisClasesController {
     }
 
     public static async inscribirse(req : Request<any>, res : Response<any>) : Promise<void> {
-        res.json({
-            data : "inscribirse"
-        })
+        let clase = await AppDataSource.manager.findOne(Clase,{
+            where : {
+                id:req.params.idClase
+            },
+            relations : {
+                tipoClase : true
+            }
+        });
+        
+        if(
+            //validar si no existe inscripcion para el soscio
+            true
+        ){
+            //inscribo
+
+            let inscripcion;
+            res.json({
+                data : {
+                    clase : clase,
+                    inscripcion : inscripcion
+                }
+            })
+        }
+        else{
+            // respondo mensaje que no puede inscribirse
+            res.json({
+                data : "error"
+            })
+        }
+
+
+        
     }
 
     public static async cancelarInscripcion(req : Request<any>, res : Response<any>) : Promise<void> {
