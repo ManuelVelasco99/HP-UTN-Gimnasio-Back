@@ -6,6 +6,7 @@ import { Response       } from "express-serve-static-core";
 import { Usuario        } from "../../entity/Usuario";
 import { AuthController } from "../auth/AuthController";
 import { MoreThanOrEqual } from "typeorm";
+import { Rol } from "../../entity/Rol";
 
 export class CuotaMensualController {
 
@@ -22,7 +23,7 @@ export class CuotaMensualController {
 
         cuotaMensual.fecha_pago= new Date();
 
-        let dniSocio = req.body.socio.dniSocio;
+        let dniSocio = req.body.socio.dni;
         
         let socio : Usuario | null = null;
         socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
@@ -39,7 +40,7 @@ export class CuotaMensualController {
                 cuotaMensual.precio_cuota=precio_cuota;
             }
         }
-    
+
         cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
 
         res.json({
@@ -94,6 +95,19 @@ export class CuotaMensualController {
 
             socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
             
+            let socioRaw = await AppDataSource.manager
+            .createQueryBuilder('usuario', 'u')
+            .where('u.id = :id', {id: socio?.id})
+            .getRawOne(); 
+            //Busco el rol
+            let rolUsuario=await AppDataSource.manager.findOneBy(Rol,{ id: socioRaw.u_rolId });
+
+            if(rolUsuario?.nombre!="Socio"){
+                res.status(409).json({
+                    error : "Conflict: El DNI indicado es de un "+rolUsuario?.nombre
+                });
+            }
+
             let idPrecioCuota= await AppDataSource.manager
             .createQueryBuilder('precio_cuota','pc')
             .select('pc.id')
@@ -108,7 +122,7 @@ export class CuotaMensualController {
                 precio_cuota=await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota.pc_id });
             }
 
-            if(socio){
+            if(socio && precio_cuota){
                 res.json({
                     data : {
                         socio : socio,
@@ -117,8 +131,6 @@ export class CuotaMensualController {
                 });
             }
             else{
-                console.log("entro en el error");
-
                 res.status(404).json({
                     error : "error"
                 });
