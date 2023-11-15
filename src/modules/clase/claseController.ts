@@ -34,7 +34,7 @@ export class ClaseController {
         clase.horario_inicio = req.body.horario_inicio;
         clase.horario_fin = req.body.horario_fin;
         let tipoClaseId = req.body.tipoClase;
-        let usuarioId = req.body.usuario;
+        let usuarioId = req.body.profesor;
 
         let tipoClase : TipoClase | null = null;
         if(tipoClaseId){
@@ -57,6 +57,7 @@ export class ClaseController {
 
     public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
         let claseId = req.params.id;
+
         let clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
         if(!clase){
             res.status(404).json({ error: 'Clase no encontrada' });
@@ -74,7 +75,7 @@ export class ClaseController {
         if(tipoClase) clase.tipoClase = tipoClase;
 
         ///busco la id del profesor de la clase
-        let usuarioId = req.body.usuario
+        let usuarioId = req.body.profesor
         let usuario : Usuario | null = null;
         if(usuarioId){
             usuario = await AppDataSource.manager.findOneBy(Usuario,{ id: usuarioId });
