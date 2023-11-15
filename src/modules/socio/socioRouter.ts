@@ -25,3 +25,7 @@ socioRouter.get(
     '/:id/eliminar',
     SocioController.eliminar
 );
+socioRouter.get(
+    '/:dni/validar-ingreso',
+    SocioController.validarIngreso
+);
