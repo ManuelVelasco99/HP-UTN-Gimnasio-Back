@@ -23,7 +23,7 @@ export class CuotaMensualController {
 
         cuotaMensual.fecha_pago= new Date();
 
-        let dniSocio = req.body.socio.dni;
+        let dniSocio = req.body.dni;
         
         let socio : Usuario | null = null;
         socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
@@ -40,6 +40,12 @@ export class CuotaMensualController {
                 cuotaMensual.precio_cuota=precio_cuota;
             }
         }
+
+        res.json({
+            data : "cuotaMensual"
+        })
+
+        return;
 
         cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
 
