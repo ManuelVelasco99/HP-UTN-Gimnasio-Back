@@ -1,20 +1,43 @@
-import { AppDataSource } from "../../data-source";
-import { TipoClase     } from "../../entity/TipoClase";
-import { Usuario       } from "../../entity/Usuario";
-import { Request       } from "express-serve-static-core";
-import { Response      } from "express-serve-static-core";
-import { Clase         } from "../../entity/Clase";
+import { AppDataSource         } from "../../data-source";
+import { TipoClase             } from "../../entity/TipoClase";
+import { Usuario               } from "../../entity/Usuario";
+import { Request               } from "express-serve-static-core";
+import { Response              } from "express-serve-static-core";
+import { Clase                 } from "../../entity/Clase";
+import { FindManyOptions, Like } from "typeorm";
 
 export class ClaseController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        
+        let options : FindManyOptions<Clase> = {}
+        console.log("req.query BROOOOO",req.query)
+        console.log("req.query.clase",req.query.clase)
+        console.log("req.query.profesor",req.query.profesor)
+
+        if(req.query.clase || req.query.profesor){
+            options.where = {};
+
+            if (req.query.clase) {
+                options.where.tipoClase = Like("%" + req.query.clase + "%");
+            }
+
+            if (req.query.profesor) {
+                options.where.usuario = Like("%" + req.query.profesor + "%");
+            }
+        }
+
         let clases = await AppDataSource.getRepository(Clase).createQueryBuilder("clase").select(["clase.id","clase.fecha","clase.horario_inicio", "clase.horario_fin", "clase.tipoClaseId, usuarioId"])
         .leftJoinAndSelect("clase.tipoClase", "tipoClase")
         .leftJoinAndSelect("clase.usuario", "usuario")
-        .getMany();
+        
+        // Aplicar opciones de filtro si existen
+        if (options.where) {
+            clases = clases.where(options.where);
+        }
+        // Ejecutar la consulta
+        const result = await clases.getMany();
 
-        let clasesParseadas : any = clases;
+        let clasesParseadas : any = result;
 
         clasesParseadas.forEach((element : any) => {
             element["clase"] = element.tipoClase.descripcion;
