@@ -112,6 +112,7 @@ export class CuotaMensualController {
                 res.status(409).json({
                     error : "Conflict: El DNI indicado es de un "+rolUsuario?.nombre
                 });
+                return;
             }
 
             let idPrecioCuota= await AppDataSource.manager
