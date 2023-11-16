@@ -24,3 +24,7 @@ claseRouter.post('/:id/editar', (req, res) => {
 claseRouter.get('/:id/obtener', (req, res) => {
     ClaseController.obtener(req, res);
 });
+
+claseRouter.get('/:id/eliminar', (req, res) => {
+    ClaseController.eliminar(req, res);
+});
