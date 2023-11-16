@@ -1,7 +1,10 @@
 import { AppDataSource      } from "../../data-source";
+import { Clase              } from "../../entity/Clase";
 import { AuthController     } from "../auth/AuthController";
 import { Request            } from "express-serve-static-core";
 import { Response           } from "express-serve-static-core";
+import { SocioClase         } from "../../entity/SocioClase";
+import { Usuario            } from "../../entity/Usuario";
 
 export class MisClasesController {
 
@@ -59,15 +62,128 @@ export class MisClasesController {
     }
 
     public static async inscribirse(req : Request<any>, res : Response<any>) : Promise<void> {
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let idSocio = tokenDecoded.id;
+        let socio = await AppDataSource.manager.findOneBy(Usuario,{id :idSocio});
+        
+        let clase = await AppDataSource.manager.findOne(Clase,{
+            where : {
+                id:req.params.idClase
+            },
+            relations : {
+                tipoClase : true
+            }
+        });
+
+        if(!socio || !clase){
+            return;
+        }
+
+        let puedeInscribirse = await MisClasesController.validarPuedeInscribirse(socio,clase);
+
+        if(puedeInscribirse === "Inscripto"){
+            res.status(409).json({
+                message : "Ya se encuentra inscripto en la clase"
+            });
+            return;
+        }
+
+        if(puedeInscribirse === "Superposicion"){
+            res.status(409).json({
+                message : "Ya se encuentra inscripto a otra clase en ese horario"
+            });
+            return;
+        }
+
+      
+        let inscripcion = new SocioClase();
+        inscripcion.asistencia = false;
+        inscripcion.clase = clase;
+        inscripcion.fecha_inscripcion = new Date();
+        inscripcion.usuario = socio;
+
+        inscripcion = await AppDataSource.manager.save(inscripcion);
+
         res.json({
-            data : "inscribirse"
-        })
+            data : {
+                clase       : clase,
+                inscripcion : inscripcion
+            }
+        })    
+    }
+
+    private static async validarPuedeInscribirse(socio : Usuario, clase : Clase) : Promise<"" | "Inscripto" | "Superposicion"> {
+        if((await this.validarPuedeCancelarInscripcion(socio, clase))){
+            return "Inscripto";
+        }
+
+        let socioClases = await AppDataSource.manager.query(`
+            SELECT socio_clase.*, clase.id as claseId, clase.fecha, clase.horario_inicio, clase.horario_fin
+            FROM socio_clase
+            INNER JOIN clase ON socio_clase.claseId = clase.id
+            WHERE socio_clase.usuarioId = ${socio.id} 
+            AND clase.fecha = '${clase.fecha}'
+            AND (clase.horario_inicio BETWEEN '${clase.horario_inicio}' AND '${clase.horario_fin}'
+            OR clase.horario_fin BETWEEN '19:36:12' AND '19:36:12')
+
+        `);
+
+        if(socioClases.length >0 ){
+            return "Superposicion";
+        }
+
+        return "";
     }
 
     public static async cancelarInscripcion(req : Request<any>, res : Response<any>) : Promise<void> {
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let idSocio = tokenDecoded.id;
+        let socio = await AppDataSource.manager.findOneBy(Usuario,{id :idSocio});
+
+        let clase = await AppDataSource.manager.findOne(Clase,{
+            where : {
+                id:req.params.idClase
+            },
+            relations : {
+                tipoClase : true
+            }
+        });
+
+        if(!socio || !clase){
+            return;
+        }
+
+        let puedeCancelarInscripcion = await MisClasesController.validarPuedeCancelarInscripcion(socio, clase);
+        if(!puedeCancelarInscripcion){
+            res.status(409).json({
+                message : "Error al eliminar la inscripcion"
+            });
+            return;
+        }
+
+        await AppDataSource.manager.query(`
+            DELETE
+            FROM socio_clase
+            WHERE socio_clase.id = '${puedeCancelarInscripcion}'
+        `);
+
+
         res.json({
-            data : "cancelarInscripcion"
+            data : true
         })
     }
 
+    private static async validarPuedeCancelarInscripcion(socio : Usuario, clase : Clase) : Promise<false | number> {
+        let socioClase = await AppDataSource.manager.query(`
+            SELECT socio_clase.*
+            FROM socio_clase
+            WHERE socio_clase.claseId = '${clase.id}' AND socio_clase.usuarioId = '${socio.id}'
+        `);
+
+        return socioClase.length > 0 ? socioClase[0].id : false;
+    }
+
+    
+
 }
+
