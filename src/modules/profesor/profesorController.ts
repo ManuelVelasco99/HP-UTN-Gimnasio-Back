@@ -32,8 +32,8 @@ export class ProfesorController {
         profesor.dni = req.body.dni;
         let dniDisponible = await UsuarioController.validarDniDisponible(profesor.dni);
         if(!dniDisponible){
-            res.status(400).json({
-                error : "El dni ingresado ya se encuentra en uso"
+            res.status(409).json({
+                dni : "El DNI ya está en uso"
             
             });
             return;
@@ -50,8 +50,8 @@ export class ProfesorController {
         profesor.email = req.body.email;
         let emailDisponible = await UsuarioController.validarEmailDisponible(profesor.email);
         if(!emailDisponible){
-            res.status(400).json({
-                error : "El email ingresado ya se encuentra en uso"
+            res.status(409).json({
+                email : "El email ya está en uso"
             
             });
             return;
@@ -102,12 +102,12 @@ export class ProfesorController {
         .where('profe.dni = :dni and profe.id != :id', {id:profesor.id, dni:profesor.dni})
         .getRawMany();
         if(dniDisponible.length>= 1){
-             res.status(400).json({
-                 error : "El dni ingresado ya se encuentra en uso"
-
-             });
-             return;
-         }
+            res.status(409).json({
+                dni : "El DNI ya está en uso"
+            
+            });
+            return;
+        }
 
         
         profesor.nombre   = req.body.formValue.nombre;
@@ -128,8 +128,9 @@ export class ProfesorController {
         .getRawMany();
         
         if(emailDisponible.length>=1){
-            res.status(400).json({
-                error : "El email ingresado ya se encuentra en uso"
+            res.status(409).json({
+                email : "El email ya está en uso"
+            
             });
             return;
         }
