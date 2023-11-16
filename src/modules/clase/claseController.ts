@@ -16,8 +16,11 @@ export class ClaseController {
         console.log("req.query.clase",req.query.clase)
         console.log("req.query.profesor",req.query.profesor)
 
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
         options.where = {
-            fecha: MoreThanOrEqual(new Date())
+            fecha: MoreThanOrEqual(yesterday)
         };
         
         if (req.query.clase || req.query.profesor) {
@@ -176,9 +179,10 @@ export class ClaseController {
                 data : "Clase eliminada"
                     })
         }else{
-            res.json({
-                data : "ERR-NOAUTORIZADO"
-                    })
+            res.status(409).json({
+                message : "Ya se encuentra inscripto en la clase"
+            });
+            return;
         }
 
     }
