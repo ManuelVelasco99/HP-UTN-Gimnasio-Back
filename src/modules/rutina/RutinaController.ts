@@ -8,6 +8,7 @@ import { Usuario             } from "../../entity/Usuario";
 import { TipoEjercicio } from "../../entity/TipoEjercicio";
 import { AuthController } from "../auth/AuthController";
 import { FindManyOptions, Like } from "typeorm";
+import { Nota } from "../../entity/Nota";
 
 export class RutinaController {
 
@@ -191,13 +192,20 @@ export class RutinaController {
 
             //// Elimino ////
             for(let i = 0 ; i < ejerciciosBorrar.length; i++){
+                //// Borro las notas que tenga asignadas el ejercicio ////
+                AppDataSource.manager
+                .createQueryBuilder('nota', 'nota')
+                .delete()
+                .from(Nota)
+                .where('nota.ejercicioId = :id', {id: ejerciciosBorrar[i].id})
+                .execute();
+                //// Borro el ejercicio en cuestion ////
                 AppDataSource.manager
                 .createQueryBuilder('ejercicio', 'ejercicio')
                 .delete()
                 .from(Ejercicio)
                 .where('ejercicio.id = :id', {id: ejerciciosBorrar[i].id})
                 .execute();
-                console.log("Borrando ando")
             }
 
             //// Agrego ////
@@ -231,8 +239,25 @@ export class RutinaController {
         if(!profesor || !runtina){
             return;
         }
-        /////----ELIMINO LOS EJERCICIOS----////
+        
         if(await this.validarProfesor(runtina, profesor)){
+            /////----ELIMINO LAS NOTAS----////
+            let notas  = await AppDataSource.manager.query(`
+                            select nt.id from nota nt
+                            inner join ejercicio ej on nt.ejercicioId = ej.id
+                            inner join rutina r on r.id = ej.rutinaId
+                            where r.id = ${idR}`);           
+            if(notas){
+                for(let i =0 ; i < notas.length; i++){
+                    let a = await AppDataSource.manager
+                    .createQueryBuilder('nota', 'nota')
+                    .delete()
+                    .from(Nota)
+                    .where('nota.id = :id', {id: notas[i].id})
+                    .execute();
+                }
+            }       
+            /////----ELIMINO LOS EJERCICIOS----////         
             let a = await AppDataSource.manager
             .createQueryBuilder('ejercicio', 'ejercicio')
             .delete()
