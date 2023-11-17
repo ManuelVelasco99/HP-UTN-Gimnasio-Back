@@ -28,3 +28,9 @@ tipoclaseRouter.post(
     Middlewares.validarRolDelEncargado,
     TipoClaseController.editar
 );
+
+tipoclaseRouter.post(
+    '/:id/eliminar',
+    Middlewares.validarRolDelEncargado,
+    TipoClaseController.eliminar
+);

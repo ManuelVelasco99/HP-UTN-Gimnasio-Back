@@ -62,4 +62,37 @@ export class TipoClaseController {
             data : tipoClase
         })
     }
+
+    public static async eliminar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let tipoClaseId = req.params.id;
+        let tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
+        if(!tipoClase){
+            return;
+        }
+
+        let clases = await AppDataSource.manager.query(`
+            SELECT *
+            FROM clase
+            WHERE clase.tipoClaseId = ${tipoClase.id}
+        `);
+
+        if(clases.length > 0) {
+            res.status(409).json({
+                message : "No se puede eliminar porque ya está asignado a una clase"
+            });
+            return;
+        }
+
+        let deletTipoClase = await AppDataSource.manager
+            .createQueryBuilder('tipo_clase', 'tipo_clase')
+            .delete()
+            .from(TipoClase)
+            .where('tipo_clase.id = :id', {id: tipoClase.id})
+            .execute()
+        ;
+
+        res.json({
+            data : true
+        })
+    }
 }
