@@ -50,6 +50,7 @@ app.use('/clase',
     claseRouter
 );
 app.use('/cuota-mensual'   , cuotaMensualRouter    );
+app.use('/cuota'   , cuotaMensualRouter    );
 app.use('/maquina-elemento', maquinaElementoRouter );
 app.use('/maquina-elemento',
     [
