@@ -4,6 +4,7 @@ import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import   jwt             from "jsonwebtoken"; 
 import keygen from "keygen";
+import createTransport from "nodemailer";
 
 export class AuthController {
 
@@ -90,6 +91,22 @@ export class AuthController {
             usuario.codigo_restablecimiento = codigo;
             usuario = await AppDataSource.manager.save(usuario);
             //envio de mail con el codigo 
+
+            let transporter = createTransport.createTransport({
+                service : "gmail",
+                auth : {
+                    user : "manuelvelascoutn@gmail.com",
+                    pass : process.env.CLAVE_MAIL
+                }
+            });
+            let url = process.env.APP_URL+"/auth/restablecer-contrasenia/"+codigo;
+            let mailOptions = {
+                from : "manuelvelascoutn@gmail.com",
+                to: usuario.email,
+                subject : "Restablecer contraseña - Sitema Gimnasio",
+                text: `Hola ${usuario.nombre}, para restablecer su contraseña navegue al siguiente enlace ${url}`
+            }
+            await transporter.sendMail(mailOptions);
         }
         res.json({
             data: true
