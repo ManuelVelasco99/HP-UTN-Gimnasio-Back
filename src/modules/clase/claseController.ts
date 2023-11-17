@@ -22,34 +22,42 @@ export class ClaseController {
         options.where = {
             fecha: MoreThanOrEqual(yesterday)
         };
-        
-        if (req.query.clase || req.query.profesor) {
-            // Agregar condiciones adicionales si existen
-            options.where.tipoClase = req.query.clase ? Like("%" + req.query.clase + "%") : undefined;
-            options.where.usuario = req.query.profesor ? Like("%" + req.query.profesor + "%") : undefined;
+         
+        let query =`
+            SELECT clase.*, tipo_clase.descripcion as clase, tipo_clase.cupo as cupo, CONCAT(usuario.nombre, ' ',usuario.apellido) as profesor
+            FROM clase
+            INNER JOIN tipo_clase ON tipo_clase.id = clase.tipoClaseId
+            INNER JOIN usuario ON clase.usuarioId = usuario.id
+            WHERE clase.fecha >= '${yesterday.toISOString()}'
+
+        `;
+        let extraQuery = "";
+        if(req.query.clase && req.query.profesor){
+            extraQuery = ` AND (
+                CONCAT(usuario.nombre, ' ',usuario.apellido) LIKE '%${req.query.profesor}%'
+                AND tipo_clase.descripcion LIKE '%${req.query.clase}%')
+            `;
         }
-
-        let clases = await AppDataSource.getRepository(Clase).createQueryBuilder("clase").select(["clase.id","clase.fecha","clase.horario_inicio", "clase.horario_fin", "clase.tipoClaseId, usuarioId"])
-        .leftJoinAndSelect("clase.tipoClase", "tipoClase")
-        .leftJoinAndSelect("clase.usuario", "usuario")
-        
-        // Aplicar opciones de filtro si existen
-        if (options.where) {
-            clases = clases.where(options.where);
+        else{
+            if(req.query.clase){
+                extraQuery = ` AND tipo_clase.descripcion LIKE '%${req.query.clase}%'`;
+            }
+            if(req.query.profesor){
+                extraQuery = ` AND CONCAT(usuario.nombre, ' ',usuario.apellido) LIKE '%${req.query.profesor}%'`;
+            }
         }
-        // Ejecutar la consulta
-        const result = await clases.getMany();
+        let clases : any = await AppDataSource.manager.query(query+extraQuery);
 
-        let clasesParseadas : any = result;
 
-        clasesParseadas.forEach((element : any) => {
-            element["clase"] = element.tipoClase.descripcion;
-            element["cupo"] = element.tipoClase.cupo;
-            element["profesor"] = element.usuario.nombre +" "+ element.usuario.apellido;
+        clases.forEach((element : any) => {
+            element.fecha = element.fecha.toISOString().split("T")[0];
+            element.horario_inicio = element.horario_inicio.substring(0, element.horario_inicio.length - 3);
+            element.horario_fin = element.horario_fin.substring(0, element.horario_fin.length - 3);
         });
 
+
         res.json({
-            data : clasesParseadas
+            data : clases
         });
     }
 
@@ -86,33 +94,29 @@ export class ClaseController {
 
         const fechaClase = new Date(clase.fecha);
 
-        if(await this.validarUsuario(clase, usu, rolIdUsuario)){
-            if (!(fechaClase.getTime() <= yesterday.getTime())) {
-                
-                if(tipoClase) clase.tipoClase = tipoClase;
-                clase.usuario = usuario
+        if (!(fechaClase.getTime() <= yesterday.getTime())) {
+            
+            if(tipoClase) clase.tipoClase = tipoClase;
+            clase.usuario = usuario;
 
-                clase = await AppDataSource.manager.save(clase);
+            clase = await AppDataSource.manager.save(clase);
 
-                res.json({
-                    data : clase
-                })
-            }
-            else{
-                res.status(409).json({
-                    message : "error al agregar una nueva clase"
-                });
-                return;
-            }
+            res.json({
+                data : clase
+            });
         }
-        
-
-        
-
+        else{
+            res.status(409).json({
+                message : "error al agregar una nueva clase"
+            });
+        }
         
     }
 
+
     public static async editar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let idUsuario = tokenDecoded.id;
         let claseId = req.params.id;
         let clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
         
@@ -134,44 +138,52 @@ export class ClaseController {
         }
         
 
-        let usuario : Usuario | null = null;
-        if(profeId){
-            usuario = await AppDataSource.manager.findOneBy(Usuario, { id: profeId});
-            console.log("usuario: ",usuario)
-        }
+        let usuario : any = await AppDataSource.manager.query(`
+            SELECT usuario.*
+            FROM usuario
+            WHERE usuario.id = '${tokenDecoded.id}'
+        `);
 
-        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
-        let idUsuario = tokenDecoded.id;
-        let rolIdUsuario = tokenDecoded.rol_id
-        let usu =  await AppDataSource.manager.findOneBy(Usuario, {id: idUsuario});
-        if(!usu){
-            return;
-        }
+        
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 
         const fechaClase = new Date(clase.fecha);
 
-        if(await this.validarUsuario(clase, usu, rolIdUsuario)){
-            if (!(fechaClase.getTime() <= yesterday.getTime())) {
-                
-                if(tipoClase) clase.tipoClase = tipoClase;
-                clase.usuario = usuario
+        let puedeEditarLaClase = ClaseController.puedeEditarLaClase(usuario,clase);
 
-                clase = await AppDataSource.manager.save(clase);
-
-                res.json({
-                    data : clase
-                })
-            }
-            else{
-                res.status(409).json({
-                    message : "error al editar una nueva clase"
-                });
-                return;
-            }
+        if(!puedeEditarLaClase){
+            res.status(409).json({
+                message : "No puedes editar la clase de otro profesor"
+            });
         }
+
+        if (!(fechaClase.getTime() <= yesterday.getTime())) {
+            
+            if(tipoClase) clase.tipoClase = tipoClase;
+            clase.usuario = usuario
+
+            clase = await AppDataSource.manager.save(clase);
+
+            res.json({
+                data : clase
+            })
+        }
+        else{
+            res.status(409).json({
+                message : "Error al editar una nueva clase"
+            });
+            return;
+        }
+
+    }
+
+    private static puedeEditarLaClase(usuario : any, clase : Clase) {
+        if(usuario.rol_id === 2 && clase.usuario?.id !== usuario.id){
+            return false;
+        }
+        return true;
     }
 
     public static async obtener(req : Request<any>, res : Response<any>) : Promise<void> {
@@ -214,53 +226,47 @@ export class ClaseController {
             return;
         }
         /////----ELIMINO LOS SOCIO-CLASES----////
-        if(await this.validarUsuario(clase, usuario, rolIdUsuario)){
-            let a = await AppDataSource.manager
-            .createQueryBuilder('socio_clase', 'socio_clase')
-            .delete()
-            .from(SocioClase)
-            .where('socio_clase.claseId = :id', {id: idC})
-            .execute();
-            /////------ELIMINO LA CLASE------/////
-            let q= 
-            await AppDataSource.manager
-            .createQueryBuilder('clase', 'clase')
-            .delete()
-            .from(Clase)
-            .where('clase.id = :id', {id: idC})
-            .execute();     
-            res.json({
-                data : "Clase eliminada"
-                    })
-        }else{
-            res.status(409).json({
-                message : "No puede eliminar esta clase"
-            });
-            return;
-        }
+        let a = await AppDataSource.manager
+        .createQueryBuilder('socio_clase', 'socio_clase')
+        .delete()
+        .from(SocioClase)
+        .where('socio_clase.claseId = :id', {id: idC})
+        .execute();
+        /////------ELIMINO LA CLASE------/////
+        let q= 
+        await AppDataSource.manager
+        .createQueryBuilder('clase', 'clase')
+        .delete()
+        .from(Clase)
+        .where('clase.id = :id', {id: idC})
+        .execute();     
+        res.json({
+            data : "Clase eliminada"
+        });
+
 
     }
 
-    private static async validarUsuario(clase: Clase, usuario: Usuario, rolIdUsuario: Number ) : Promise<boolean>{
-        ////// VALIDO EL USUARIO ////
 
-        console.log("clase.usuario?.id ", clase.usuario?.id )
-        console.log("usuario.id", usuario.id)
-        console.log("rol", rolIdUsuario)
+    public static async validarEdicion(req : Request<any>, res : Response<any>) : Promise<void>{
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let usuarioId = tokenDecoded.id;
+        let rolId = tokenDecoded.rol_id;
+        let claseId = req.params.id;
+        let clase = await AppDataSource.manager.findOne(Clase,{   
+            where : {id: claseId},
+            relations : { usuario : true}
+        });
 
-        if (rolIdUsuario === null) {
-            return false;
-        } else {
-    
-            if (rolIdUsuario === 1) {
-                return true;
-            }
-            if (rolIdUsuario === 2) {
-                return clase.usuario?.id === usuario.id;
-            }
+        if(rolId === 2 && clase?.usuario?.id !== usuarioId){
+            res.status(409).json({
+                message : "No puede editar una clase que no le pertenece"
+            });
         }
-    
-        return false
-       
+        else{
+            res.json({
+                data : true
+            });
+        }
     }
 }

@@ -28,3 +28,7 @@ claseRouter.get('/:id/obtener', (req, res) => {
 claseRouter.get('/:id/eliminar', (req, res) => {
     ClaseController.eliminar(req, res);
 });
+
+claseRouter.get('/:id/validar-edicion', (req, res) => {
+    ClaseController.validarEdicion(req, res);
+});
