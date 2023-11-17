@@ -19,7 +19,8 @@ export class CuotaMensualController {
     }
     
     public static async obtenerDatos(req : Request<any>, res : Response<any>) : Promise<void> {
-        let idCuota = req.body.id;
+        
+        let idCuota = req.params.id;
         let datosCuota : any = await AppDataSource.manager.query(`
         SELECT u.dni,u.nombre,u.apellido,u.fecha_nacimiento,u.telefono,cm.fecha_periodo,pc.monto
         FROM cuota_mensual cm
@@ -31,7 +32,7 @@ export class CuotaMensualController {
         `);
         res.json({
             data : datosCuota
-        })
+        });
     }
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
@@ -93,6 +94,7 @@ export class CuotaMensualController {
         .createQueryBuilder('cuota_mensual','cm')
         .select('max(cm.fecha_periodo)', 'periodoMax')
         .where("cm.socioId= :idSocio", { idSocio: socio.id })
+        .andWhere("cm.estado=1")
         .limit(1)
         .getRawOne()
         
@@ -131,7 +133,7 @@ export class CuotaMensualController {
         
         
         if(cuotaMensual){
-            cuotaMensual.motivo_baja=req.params.motivo_baja;
+            cuotaMensual.motivo_baja=req.body.motivo_baja;
             let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
             let usuarioEliminacion = await AuthController.obtenerDatosUsuarioPorId(tokenDecoded.id);
             cuotaMensual.estado=false;
@@ -207,6 +209,7 @@ export class CuotaMensualController {
             .createQueryBuilder('cuota_mensual','cm')
             .select('max(cm.fecha_periodo)', 'periodoMax')
             .where("cm.socioId= :idSocio", { idSocio: socio?.id })
+            .andWhere("cm.estado=1")
             .limit(1)
             .getRawOne()
 
