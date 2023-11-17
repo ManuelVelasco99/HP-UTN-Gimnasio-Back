@@ -34,6 +34,14 @@ export class AuthController {
             })
         }
         else{
+            let expireOptions;
+            if(req.body.recordarme){
+                expireOptions = {};
+            }
+            else{
+                expireOptions = {expiresIn:"4h"};
+            }
+
             let token = jwt.sign(
                 {
                     id : usuario?.id,
@@ -41,7 +49,8 @@ export class AuthController {
                     apellido : usuario?.apellido,
                     rol_id : usuario?.rol?.id
                 },
-                process.env.SECRET_WORD || "?"
+                process.env.SECRET_WORD || "?",
+                expireOptions
             )
     
             res.json({
