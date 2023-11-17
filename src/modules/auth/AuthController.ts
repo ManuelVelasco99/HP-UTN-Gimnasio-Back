@@ -3,6 +3,7 @@ import { Usuario       } from "../../entity/Usuario";
 import { Request       } from "express-serve-static-core";
 import { Response      } from "express-serve-static-core";
 import   jwt             from "jsonwebtoken"; 
+import keygen from "keygen";
 
 export class AuthController {
 
@@ -78,6 +79,54 @@ export class AuthController {
                 rol : usuario?.rol
             }
         })
+    }
+
+    public static async olvideMiContrasenia(req : Request<any>, res : Response<any>) : Promise<void> {
+        let email = req.body.email;
+        let usuario = await AppDataSource.manager.findOneBy(Usuario,{email: email});
+        if(usuario){
+            console.log("usuario: ",usuario);
+            let codigo =  keygen.hex(128);
+            usuario.codigo_restablecimiento = codigo;
+            usuario = await AppDataSource.manager.save(usuario);
+            //envio de mail con el codigo 
+        }
+        res.json({
+            data: true
+        })
+    }
+
+    public static async restablecerContrasenia(req : Request<any>, res : Response<any>) : Promise<void> {
+        let contrasenia = req.body.constrasenia;
+        let codigo_restablecimiento = req.body.codigo_restablecimiento;
+        let usuario = await AppDataSource.manager.findOne(Usuario,{where:{codigo_restablecimiento:codigo_restablecimiento},
+        relations:{rol:true}},);
+        if(usuario){
+            usuario.contrasenia = contrasenia;
+            usuario.codigo_restablecimiento = null;
+            usuario = await AppDataSource.manager.save(usuario);
+            let token = jwt.sign(
+                {
+                    id : usuario?.id,
+                    nombre : usuario?.nombre,
+                    apellido : usuario?.apellido,
+                    rol_id : usuario?.rol?.id
+                },
+                process.env.SECRET_WORD || "?"
+            )
+    
+            res.json({
+                data : {
+                    token : token
+                }   
+            })
+            
+        }
+        else{
+            res.status(403).json({
+                message: "Acceso denegado"
+            });
+        }
     }
 
     public static async decodificarToken(token : string = '') : Promise<any> {

@@ -52,6 +52,9 @@ export class Usuario {
     @Column()
     estado! : boolean
 
+    @Column({type:"varchar",length:128, nullable: true, default: null})
+    codigo_restablecimiento: string | null = null;
+
     @ManyToOne( () => Rol, (rol) => rol.usuarios,{ nullable: false })
     rol!: Rol | null
 
