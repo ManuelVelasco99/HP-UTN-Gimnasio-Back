@@ -55,6 +55,21 @@ export class ClaseController {
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let clase = new Clase();
+        clase.fecha = req.body.fecha;
+        clase.horario_inicio = req.body.horario_inicio;
+        clase.horario_fin = req.body.horario_fin;
+        let tipoClaseId = req.body.tipoClase;
+        let profeId = req.body.profesor;
+
+        let tipoClase : TipoClase | null = null;
+        if(tipoClaseId){
+            tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
+        }
+
+        let usuario : Usuario | null = null;
+        if(profeId){
+            usuario = await AppDataSource.manager.findOneBy(Usuario, { id: profeId});
+        }
 
         let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
         let idUsuario = tokenDecoded.id;
@@ -64,11 +79,7 @@ export class ClaseController {
             return;
         }
 
-        clase.fecha = req.body.fecha;
-        clase.horario_inicio = req.body.horario_inicio;
-        clase.horario_fin = req.body.horario_fin;
-        let tipoClaseId = req.body.tipoClase;
-        let profeId = req.body.profesor;
+        
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -77,21 +88,11 @@ export class ClaseController {
 
         if(await this.validarUsuario(clase, usu, rolIdUsuario)){
             if (!(fechaClase.getTime() <= yesterday.getTime())) {
-                let tipoClase : TipoClase | null = null;
-                if(tipoClaseId){
-                    tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
-                }
+                
                 if(tipoClase) clase.tipoClase = tipoClase;
-
-                let usuario : Usuario | null = null;
-                if(profeId){
-                    usuario = await AppDataSource.manager.findOneBy(Usuario, { id: profeId});
-                }
                 clase.usuario = usuario
 
                 clase = await AppDataSource.manager.save(clase);
-
-                console.log("clase: ",clase)
 
                 res.json({
                     data : clase
@@ -111,13 +112,32 @@ export class ClaseController {
         
     }
 
-    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
+    public static async editar(req : Request<any>, res : Response<any>) : Promise<void> {
         let claseId = req.params.id;
-
         let clase = await AppDataSource.manager.findOneBy(Clase,{ id: claseId });
+        
+        
         if(!clase){
             res.status(404).json({ error: 'Clase no encontrada' });
             return;
+        }
+
+        clase.fecha = req.body.fecha;
+        clase.horario_inicio = req.body.horario_inicio;
+        clase.horario_fin = req.body.horario_fin;
+        let tipoClaseId = req.body.tipoClase;
+        let profeId = req.body.profesor;
+
+        let tipoClase : TipoClase | null = null;
+        if(tipoClaseId){
+            tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
+        }
+        
+
+        let usuario : Usuario | null = null;
+        if(profeId){
+            usuario = await AppDataSource.manager.findOneBy(Usuario, { id: profeId});
+            console.log("usuario: ",usuario)
         }
 
         let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
@@ -128,12 +148,6 @@ export class ClaseController {
             return;
         }
 
-        clase.fecha = req.body.fecha;
-        clase.horario_inicio = req.body.horario_inicio;
-        clase.horario_fin = req.body.horario_fin;
-        let tipoClaseId = req.body.tipoClase;
-        let profeId = req.body.profesor;
-
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 
@@ -141,16 +155,8 @@ export class ClaseController {
 
         if(await this.validarUsuario(clase, usu, rolIdUsuario)){
             if (!(fechaClase.getTime() <= yesterday.getTime())) {
-                let tipoClase : TipoClase | null = null;
-                if(tipoClaseId){
-                    tipoClase = await AppDataSource.manager.findOneBy(TipoClase,{ id: tipoClaseId });
-                }
+                
                 if(tipoClase) clase.tipoClase = tipoClase;
-
-                let usuario : Usuario | null = null;
-                if(profeId){
-                    usuario = await AppDataSource.manager.findOneBy(Usuario, { id: profeId});
-                }
                 clase.usuario = usuario
 
                 clase = await AppDataSource.manager.save(clase);
@@ -250,7 +256,6 @@ export class ClaseController {
                 return true;
             }
             if (rolIdUsuario === 2) {
-                // Verifica si clase.usuario?.id no es null y es un número antes de comparar
                 return clase.usuario?.id === usuario.id;
             }
         }
