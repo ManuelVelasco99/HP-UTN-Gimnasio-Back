@@ -11,15 +11,44 @@ import { Rol } from "../../entity/Rol";
 export class CuotaMensualController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let first = true;
+        let textoWhere="";
+        console.log("req.query.ocultar_eliminados: ",req.query.ocultar_eliminados)
+        if(req.query.ocultar_eliminados){
+            textoWhere = "WHERE cm.motivo_baja IS NULL";
+            first = false;
+        }
+        if(req.query.nombre){
+            if(!first){
+                textoWhere = textoWhere + ` AND CONCAT(u.nombre, ' ', u.apellido) LIKE '%${req.query.nombre}%'`;
+            }
+            else{
+                textoWhere =`WHERE CONCAT(u.nombre, ' ', u.apellido) LIKE '%${req.query.nombre}%'`;
+                first = false;
+            }
+        }
+        if(req.query.dni){
+            if(!first){
+                textoWhere = textoWhere + ` AND u.dni LIKE '%${req.query.dni}%'`;
+            }
+            else{
+                textoWhere =`WHERE u.dni LIKE '%${req.query.dni}%'`;
+                first = false;
+            }
+        }
+        if(textoWhere){
+            textoWhere= " " + textoWhere + " ";
+        }
         let cuotaMensual : any = await AppDataSource.manager.query(`
-        SELECT cm.id,u.dni,u.nombre,u.apellido,u.telefono,
-        monthname(cm.fecha_periodo) "Mes Abonado",year(cm.fecha_periodo) "Año Abonado",
-        pc.monto,cm.fecha_pago "Fecha Pago",cm.motivo_baja "Motivo Baja"
-        FROM cuota_mensual cm
-        inner join usuario u
-        on cm.socioId=u.id
-        inner join precio_cuota pc
-        on cm.precioCuotaId=pc.id
+            SELECT cm.id,u.dni,u.nombre,u.apellido,u.telefono,
+            monthname(cm.fecha_periodo) "Mes Abonado",year(cm.fecha_periodo) "Año Abonado",
+            pc.monto,cm.fecha_pago "Fecha Pago",cm.motivo_baja "Motivo Baja"
+            FROM cuota_mensual cm
+            inner join usuario u
+            on cm.socioId=u.id
+            inner join precio_cuota pc
+            on cm.precioCuotaId=pc.id
+            ${textoWhere}
         `)
         cuotaMensual.forEach((element: { [x: string]: { toLocaleDateString: () => any; }; }) => {
             element["Fecha Pago"]=element["Fecha Pago"].toLocaleDateString();
