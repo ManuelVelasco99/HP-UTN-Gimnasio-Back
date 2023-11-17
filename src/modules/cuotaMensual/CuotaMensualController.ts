@@ -101,35 +101,38 @@ export class CuotaMensualController {
         cuotaMensual.estado=true;
 
         //busco la ultima cuota paga
-        let periodoAnterior= await AppDataSource.manager
-        .createQueryBuilder('cuota_mensual','cm')
-        .select('max(cm.fecha_periodo)', 'periodoMax')
-        .where("cm.socioId= :idSocio", { idSocio: socio.id })
-        .andWhere("cm.estado=1")
-        .limit(1)
-        .getRawOne()
+        let periodoAnterior : any = await AppDataSource.manager.query(`
+                SELECT cm.*
+                FROM cuota_mensual cm
+                INNER JOIN 
+                    usuario u ON cm.socioId=u.id
+                INNER JOIN 
+                    precio_cuota pc ON cm.precioCuotaId=pc.id
+                WHERE cm.motivo_baja IS NULL AND u.id = ${socio?.id}
+                ORDER BY cm.fecha_periodo DESC
+        `) 
         
-        let periodoPagarMes=0
-
-        if(periodoAnterior.periodoMax!=null){
-            periodoPagarMes=periodoAnterior.periodoMax.getMonth()+1
+        let periodoPago;
+        if(periodoAnterior.length === 0){
+            periodoPago = new Date();
         }
-        else{
-            periodoPagarMes=mm-1
+        else{                
+            let fechaPeriodoAnterior = periodoAnterior[0].fecha_periodo.toISOString();
+            fechaPeriodoAnterior = fechaPeriodoAnterior.split("T")[0];
+            let arrayfechaPeriodoAnterior = fechaPeriodoAnterior.split("-");
+            let mes = Number(arrayfechaPeriodoAnterior[1]); 
+            let anio = Number(arrayfechaPeriodoAnterior[0]);
+            if(mes === 12){
+                periodoPago = new Date(`${anio+1}-01-02`);
+            }
+            else{
+                periodoPago = new Date(`${anio}-${mes+1}-02`);
+            }
+
         }
 
-
-        let yyyyPP = today.getFullYear();
-        
-        //es cambio de año?
-        if(periodoPagarMes==13){
-            periodoPagarMes=1
-            yyyyPP=periodoAnterior.periodoMax.getFullYear()+1
-        }
-        
-        let formattedPeriodoPago=new Date(yyyyPP,periodoPagarMes,1);
-
-        cuotaMensual.fecha_periodo=formattedPeriodoPago;
+    
+        cuotaMensual.fecha_periodo=periodoPago;
 
         cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
 
@@ -184,7 +187,6 @@ export class CuotaMensualController {
 
             const formattedToday = yyyy+"-"+mm+"-"+dd;
 
-            console.log(formattedToday)
             socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
             
             let socioRaw = await AppDataSource.manager
@@ -210,48 +212,83 @@ export class CuotaMensualController {
             .limit(1)
             .getRawOne()
 
+            
+
             let precio_cuota : PrecioCuota | null = null;
             if(idPrecioCuota){
                 precio_cuota=await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota.pc_id });
             }
-
-            //busco la ultima cuota paga
-            let periodoAnterior= await AppDataSource.manager
-            .createQueryBuilder('cuota_mensual','cm')
-            .select('max(cm.fecha_periodo)', 'periodoMax')
-            .where("cm.socioId= :idSocio", { idSocio: socio?.id })
-            .andWhere("cm.estado=1")
-            .limit(1)
-            .getRawOne()
-
-            let periodoPagarMes=0
-
-            if(periodoAnterior.periodoMax!=null){
-                periodoPagarMes=periodoAnterior.periodoMax.getMonth()+1
-            }
-            else{
-                periodoPagarMes=mm-1
-            }
-
+            let periodoAnterior : any = await AppDataSource.manager.query(`
+                SELECT cm.*
+                FROM cuota_mensual cm
+                INNER JOIN 
+                    usuario u ON cm.socioId=u.id
+                INNER JOIN 
+                    precio_cuota pc ON cm.precioCuotaId=pc.id
+                WHERE cm.motivo_baja IS NULL AND u.id = ${socio?.id}
+                ORDER BY cm.fecha_periodo DESC
+            `) 
             
-            let yyyyPP = today.getFullYear();
-            
-            //es cambio de año?
-            if(periodoPagarMes==13){
-                periodoPagarMes=1
-                yyyyPP=periodoAnterior.periodoMax.getFullYear()+1
+            let periodoPago;
+            if(periodoAnterior.length === 0){
+                periodoPago = new Date();
+            }
+            else{                
+                let fechaPeriodoAnterior = periodoAnterior[0].fecha_periodo.toISOString();
+                fechaPeriodoAnterior = fechaPeriodoAnterior.split("T")[0];
+                let arrayfechaPeriodoAnterior = fechaPeriodoAnterior.split("-");
+                let mes = Number(arrayfechaPeriodoAnterior[1]); 
+                let anio = Number(arrayfechaPeriodoAnterior[0]);
+                if(mes === 12){
+                    periodoPago = new Date(`${anio+1}-01-01`);
+                }
+                else{
+                    periodoPago = new Date(`${anio}-${mes+1}-01`);
+                }
+
             }
             
-            let periodoAPagar=new Date(yyyyPP,periodoPagarMes,1);
-            let fecha_periodo=periodoAPagar.toLocaleString('es-es', { month: 'long' });
+            let arrayfechaPeriodoAnterior = periodoPago.toISOString().split("-");
+            let mes = Number(arrayfechaPeriodoAnterior[1]);
 
+
+            function obtenerNombreMes(numero: number): string {
+                switch (numero) {
+                    case 1:
+                        return "Enero";
+                    case 2:
+                        return "Febrero";
+                    case 3:
+                        return "Marzo";
+                    case 4:
+                        return "Abril";
+                    case 5:
+                        return "Mayo";
+                    case 6:
+                        return "Junio";
+                    case 7:
+                        return "Julio";
+                    case 8:
+                        return "Agosto";
+                    case 9:
+                        return "Septiembre";
+                    case 10:
+                        return "Octubre";
+                    case 11:
+                        return "Noviembre";
+                    case 12:
+                        return "Diciembre";
+                    default:
+                        return "Número de mes no válido. Por favor, ingresa un número del 1 al 12.";
+                }
+            }
 
             if(socio && precio_cuota){
                 res.json({
                     data : {
                         socio : socio,
                         precio_cuota : precio_cuota,
-                        periodoPago:fecha_periodo
+                        periodoPago:obtenerNombreMes(mes)
                     }
                 });
             }
