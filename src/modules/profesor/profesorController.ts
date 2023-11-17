@@ -197,4 +197,39 @@ export class ProfesorController {
                 data : "Eliminado con exito"
             });
     }
+
+    public static async validarProfesorDadoDeBaja(req : Request<any>, res : Response<any>) : Promise<void>{
+        let profesorDni = req.params.dni;
+        let profesorDadoDeBaja = await AppDataSource.manager.query(`
+            SELECT usuario.*
+            FROM usuario
+            WHERE usuario.dni = ${profesorDni} 
+            AND usuario.rolId = 2
+            AND usuario.estado = 0
+        `);
+
+        if(profesorDadoDeBaja.length > 0){
+            let profesor = await AppDataSource.manager.findOneBy(Usuario,{ id: profesorDadoDeBaja[0].id });
+            if(!profesor){
+                return;
+            }
+            profesor.estado = true;
+            profesor = await AppDataSource.manager.save(profesor);
+
+            res.json({
+                data : {
+                    encontrado : true,
+                    profesor : profesor
+                }
+            });
+        }
+        else{
+            res.json({
+                data : {
+                    encontrado : false,
+                }
+            });
+        }
+    }
+    
 }

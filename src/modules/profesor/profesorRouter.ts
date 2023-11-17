@@ -30,5 +30,11 @@ profesorRouter.get(
     Middlewares.validarRolDelEncargado,
     ProfesorController.eliminar
 );
+profesorRouter.post(
+    '/:dni/validar-profesor-dado-de-baja',
+    Middlewares.validarRolDelEncargado,
+    ProfesorController.validarProfesorDadoDeBaja,
+);
+
 
 
