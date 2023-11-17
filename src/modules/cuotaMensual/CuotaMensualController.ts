@@ -11,8 +11,19 @@ import { Rol } from "../../entity/Rol";
 export class CuotaMensualController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let cuotaMensual = await AppDataSource.manager.find(CuotaMensual);
-
+        let cuotaMensual : any = await AppDataSource.manager.query(`
+        SELECT cm.id,u.dni,u.nombre,u.apellido,u.telefono,
+        monthname(cm.fecha_periodo) "Mes Abonado",year(cm.fecha_periodo) "Año Abonado",
+        pc.monto,cm.fecha_pago "Fecha Pago",cm.motivo_baja "Motivo Baja"
+        FROM cuota_mensual cm
+        inner join usuario u
+        on cm.socioId=u.id
+        inner join precio_cuota pc
+        on cm.precioCuotaId=pc.id
+        `)
+        cuotaMensual.forEach((element: { [x: string]: { toLocaleDateString: () => any; }; }) => {
+            element["Fecha Pago"]=element["Fecha Pago"].toLocaleDateString();
+        });
         res.json({
             data : cuotaMensual
         })
