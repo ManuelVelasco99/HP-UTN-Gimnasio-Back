@@ -1,3 +1,4 @@
+import { AuthController    } from "../auth/AuthController";
 import { AppDataSource     } from "../../data-source";
 import { Request           } from "express-serve-static-core";
 import { Response          } from "express-serve-static-core";
@@ -8,7 +9,7 @@ import { UsuarioController } from "../usuario/UsuarioController";
 export class ProfesorController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-
+        
         let nombre_apellido = "";
         if(req.query.nombre_apellido){
             nombre_apellido = req.query.nombre_apellido.toString();
@@ -16,9 +17,26 @@ export class ProfesorController {
 
         let queryBuilder = AppDataSource.manager.createQueryBuilder(Usuario,"usuario");
 
-        const profesores = await queryBuilder
+        let profesores = await queryBuilder
         .where(`CONCAT(usuario.nombre, ' ', usuario.apellido) LIKE :nombre_apellido AND usuario.rolId = 2 and usuario.estado = true`, { nombre_apellido: `%${nombre_apellido}%` })
         .getMany();
+
+        let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
+        let rolId = tokenDecoded.rol_id;
+
+        if(rolId == 2){
+            let profesoresFiltrados : Array<any> = [];
+            profesores.forEach((element: any) => {
+                if(element.id == tokenDecoded.id){
+                    profesoresFiltrados.push(element);
+                }
+            });
+            res.json({
+                data : profesoresFiltrados,
+            });
+            return;
+        }
+
         res.json({
             data : profesores,
         });

@@ -18,9 +18,17 @@ claseRouter.post('/agregar', (req, res) => {
 });
 
 claseRouter.post('/:id/editar', (req, res) => {
-    ClaseController.actualizar(req, res);
+    ClaseController.editar(req, res);
 });
 
 claseRouter.get('/:id/obtener', (req, res) => {
     ClaseController.obtener(req, res);
+});
+
+claseRouter.get('/:id/eliminar', (req, res) => {
+    ClaseController.eliminar(req, res);
+});
+
+claseRouter.get('/:id/validar-edicion', (req, res) => {
+    ClaseController.validarEdicion(req, res);
 });
