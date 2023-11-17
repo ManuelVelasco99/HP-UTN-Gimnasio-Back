@@ -338,9 +338,10 @@ export class CuotaMensualController {
     }
 
     public static async reportePagosCuota(req: Request<any>, res: Response<any>): Promise<void> {
-        const fechaInicio = req.body.fechaInicio;
-        const fechaFin = req.body.fechaFin;
-        
+        const fechaInicio = req.body.fecha_desde;
+        const fechaFin = req.body.fecha_hasta;
+        console.log("fechaInicio", fechaInicio)
+        console.log("fechaFin", fechaFin)
 
         const countQuery = AppDataSource.manager.createQueryBuilder(CuotaMensual, "cuotaMensual")
             .where("cuotaMensual.fecha_pago BETWEEN :fechaInicio AND :fechaFin", { fechaInicio: fechaInicio, fechaFin: fechaFin })
@@ -380,14 +381,14 @@ export class CuotaMensualController {
             .orderBy("mes");
 
         // Agregar el filtro para los precios obtenidos.
-        queryBuilder.andWhere("precioCuota.id IN (:...precios)", { precios: preciosCuotas.map(precio => precio.id) });
+        // queryBuilder.andWhere("precioCuota.id IN (:...precios)", { precios: preciosCuotas.map(precio => precio.id) });
 
         // Obtener los resultados.
         const resultados = await queryBuilder.getRawMany();
 
         res.json({
             totalRegistros,
-            totalPagadas,
+            totalPagadas, 
             resultados,
 
         });
