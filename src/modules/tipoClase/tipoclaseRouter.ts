@@ -17,6 +17,12 @@ tipoclaseRouter.post(
     TipoClaseController.agregar
 );
 
+tipoclaseRouter.post(
+    '/reporte',
+    Middlewares.validarRolDelEncargado,
+    TipoClaseController.reporte
+);
+
 tipoclaseRouter.get(
     '/:id/obtener', 
     Middlewares.validarRolDelProfesorOEncargado,
