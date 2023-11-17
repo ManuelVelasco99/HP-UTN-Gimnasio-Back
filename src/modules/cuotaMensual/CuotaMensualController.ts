@@ -17,35 +17,106 @@ export class CuotaMensualController {
             data : cuotaMensual
         })
     }
+    
+    public static async obtenerDatos(req : Request<any>, res : Response<any>) : Promise<void> {
+        let idCuota = req.body.id;
+        let datosCuota : any = await AppDataSource.manager.query(`
+        SELECT u.dni,u.nombre,u.apellido,u.fecha_nacimiento,u.telefono,cm.fecha_periodo,pc.monto
+        FROM cuota_mensual cm
+        inner join usuario u
+        on cm.socioId=u.id
+        inner join precio_cuota pc
+        on cm.precioCuotaId=pc.id
+        where cm.id='${idCuota}'
+        `);
+        res.json({
+            data : datosCuota
+        })
+    }
 
     public static async agregar(req : Request<any>, res : Response<any>) : Promise<void> {
         let cuotaMensual = new CuotaMensual();
 
-        cuotaMensual.fecha_pago= new Date();
-
         let dniSocio = req.body.dni;
         
+        //Busco y guardo el socio
         let socio : Usuario | null = null;
         socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
         if(socio){
             cuotaMensual.socio=socio;
         }
+        else{
+            res.status(404).json({
+                error : "error con el socio"
+            })
+            return;
+        }
 
-        let idPrecioCuota =req.body.precio_cuota.id
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0!
+        let dd = today.getDate();
+
+        const formattedToday = yyyy+"-"+mm+"-"+dd;
+
+        //Busco y guardo el precio de la cuota
+        let idPrecioCuota= await AppDataSource.manager
+        .createQueryBuilder('precio_cuota','pc')
+        .select('pc.id')
+        .where("pc.fecha_desde<= :hoy", { hoy: formattedToday })
+        .andWhere("pc.estado=1")
+        .orderBy("pc.fecha_desde", "DESC")
+        .limit(1)
+        .getRawOne()
 
         let precio_cuota : PrecioCuota | null = null;
         if(idPrecioCuota){
-            precio_cuota= await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota });
-            if(precio_cuota){
-                cuotaMensual.precio_cuota=precio_cuota;
-            }
+            precio_cuota=await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota.pc_id });
+        }
+        
+        if(precio_cuota){
+            cuotaMensual.precio_cuota=precio_cuota;
+        }
+        else{
+            res.status(404).json({
+                error : "error con el precio cuota"
+            })
+            return;
         }
 
-        res.json({
-            data : "cuotaMensual"
-        })
+        //seteo datos de la cuota
+        cuotaMensual.fecha_pago= new Date();
+        cuotaMensual.estado=true;
 
-        return;
+        //busco la ultima cuota paga
+        let periodoAnterior= await AppDataSource.manager
+        .createQueryBuilder('cuota_mensual','cm')
+        .select('max(cm.fecha_periodo)', 'periodoMax')
+        .where("cm.socioId= :idSocio", { idSocio: socio.id })
+        .limit(1)
+        .getRawOne()
+        
+        let periodoPagarMes=0
+
+        if(periodoAnterior.periodoMax!=null){
+            periodoPagarMes=periodoAnterior.periodoMax.getMonth()+1
+        }
+        else{
+            periodoPagarMes=mm-1
+        }
+
+
+        let yyyyPP = today.getFullYear();
+        
+        //es cambio de año?
+        if(periodoPagarMes==13){
+            periodoPagarMes=1
+            yyyyPP=periodoAnterior.periodoMax.getFullYear()+1
+        }
+        
+        let formattedPeriodoPago=new Date(yyyyPP,periodoPagarMes,1);
+
+        cuotaMensual.fecha_periodo=formattedPeriodoPago;
 
         cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
 
@@ -62,7 +133,8 @@ export class CuotaMensualController {
         if(cuotaMensual){
             cuotaMensual.motivo_baja=req.params.motivo_baja;
             let tokenDecoded = await AuthController.decodificarToken(req.header('access-token'));
-            let usuarioEliminacion = await AuthController.obtenerDatosUsuarioPorId(tokenDecoded.id)
+            let usuarioEliminacion = await AuthController.obtenerDatosUsuarioPorId(tokenDecoded.id);
+            cuotaMensual.estado=false;
             if(usuarioEliminacion){
                 cuotaMensual.usuario_eliminacion=usuarioEliminacion;
                 cuotaMensual = await AppDataSource.manager.save(cuotaMensual);
@@ -75,6 +147,7 @@ export class CuotaMensualController {
                 res.json({
                     error : "error"
                 });
+                return;
             }
         }
         //else{}
@@ -98,7 +171,7 @@ export class CuotaMensualController {
 
             const formattedToday = yyyy+"-"+mm+"-"+dd;
 
-
+            console.log(formattedToday)
             socio= await AppDataSource.manager.findOneBy(Usuario,{ dni: dniSocio });
             
             let socioRaw = await AppDataSource.manager
@@ -129,25 +202,58 @@ export class CuotaMensualController {
                 precio_cuota=await AppDataSource.manager.findOneBy(PrecioCuota,{ id: idPrecioCuota.pc_id });
             }
 
+            //busco la ultima cuota paga
+            let periodoAnterior= await AppDataSource.manager
+            .createQueryBuilder('cuota_mensual','cm')
+            .select('max(cm.fecha_periodo)', 'periodoMax')
+            .where("cm.socioId= :idSocio", { idSocio: socio?.id })
+            .limit(1)
+            .getRawOne()
+
+            let periodoPagarMes=0
+
+            if(periodoAnterior.periodoMax!=null){
+                periodoPagarMes=periodoAnterior.periodoMax.getMonth()+1
+            }
+            else{
+                periodoPagarMes=mm-1
+            }
+
+            
+            let yyyyPP = today.getFullYear();
+            
+            //es cambio de año?
+            if(periodoPagarMes==13){
+                periodoPagarMes=1
+                yyyyPP=periodoAnterior.periodoMax.getFullYear()+1
+            }
+            
+            let periodoAPagar=new Date(yyyyPP,periodoPagarMes,1);
+            let fecha_periodo=periodoAPagar.toLocaleString('es-es', { month: 'long' });
+
+
             if(socio && precio_cuota){
                 res.json({
                     data : {
                         socio : socio,
-                        precio_cuota : precio_cuota
+                        precio_cuota : precio_cuota,
+                        periodoPago:fecha_periodo
                     }
                 });
             }
             else{
                 res.status(404).json({
                     error : "error"
-                });
+                })
+                return;
             }
 
             
         } catch (error) {
             res.status(404).json({
                 error : "error"
-            });
+            })
+            return;
         }
     }
 
