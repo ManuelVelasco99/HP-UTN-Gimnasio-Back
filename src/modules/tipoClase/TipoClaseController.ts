@@ -60,6 +60,23 @@ export class TipoClaseController {
 
         res.json({
             data : tipoClase
+        }) 
+    }
+
+    public static async reporte(req : Request<any>, res : Response<any>) : Promise<void>{
+        let idTC = req.body.clase_id
+        let fecha_desde = req.body.fecha_desde
+        let fecha_hasta = req.body.fecha_hasta
+        let horayprom  = await AppDataSource.manager.query(`
+                                        select  cl.horario_inicio 'horario' , truncate( avg(ifnull(sc.asistencia, 0)*100) ,0) 'porcentaje' from clase cl
+                                        left join socio_clase sc  on cl.id = sc.claseId
+                                        where cl.fecha >= date('${fecha_desde}')-- fecha_desde 
+                                        and cl.fecha <= date('${fecha_hasta}') -- fecha_hasta
+                                        and cl.tipoClaseId = ${idTC} -- idTipoClase
+                                        group by cl.horario_inicio;
+                                `);   
+        res.json({
+            data : horayprom
         })
     }
 }
