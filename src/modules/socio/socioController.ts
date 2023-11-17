@@ -35,8 +35,8 @@ export class SocioController {
         socio.dni = req.body.dni;
         let dniDisponible = await UsuarioController.validarDniDisponible(socio.dni);
         if(!dniDisponible){
-            res.status(400).json({
-                error : "El dni ingresado ya se encuentra en uso"
+            res.status(409).json({
+                dni : "El DNI ya está en uso"
             
             });
             return;
@@ -53,8 +53,8 @@ export class SocioController {
         socio.email = req.body.email;
         let emailDisponible = await UsuarioController.validarEmailDisponible(socio.email);
         if(!emailDisponible){
-            res.status(400).json({
-                error : "El email ingresado ya se encuentra en uso"
+            res.status(409).json({
+                email : "El email ya está en uso"
             
             });
             return;
@@ -95,11 +95,11 @@ export class SocioController {
         .where('socio.dni = :dni and socio.id != :id', {id:socio.id, dni:socio.dni})
         .getRawMany();
         if(dniDisponible.length>= 1){
-             res.status(400).json({
-                 error : "El dni ingresado ya se encuentra en uso"
-
-             });
-             return;
+            res.status(409).json({
+                dni : "El DNI ya está en uso"
+            
+            });
+            return;
          }
 
         
@@ -121,10 +121,9 @@ export class SocioController {
         .getRawMany();
         
         if(emailDisponible.length>=1){
-            res.status(400).json({
-                error : "El email ingresado ya se encuentra en uso"
+            res.status(409).json({
+                email : "El email ya está en uso"
             });
-            return;
         }
         
         //TODO: Agregar hasheado con bcrypt
