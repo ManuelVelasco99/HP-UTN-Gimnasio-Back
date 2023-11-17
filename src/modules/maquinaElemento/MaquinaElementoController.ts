@@ -75,7 +75,7 @@ export class MaquinaElementoController {
             .where('maquina_elemento.id = :id', {id: maquinaElementoId})
             .execute();
             res.json({
-                data : "Eliminado conexito"
+                data : "Eliminado con éxito"
             });
         }       
     }

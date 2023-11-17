@@ -6,7 +6,16 @@ import { Response        } from "express-serve-static-core";
 export class PrecioCuotaController {
 
     public static async listar(req : Request<any>, res : Response<any>) : Promise<void> {
-        let precioCuota = await AppDataSource.manager.find(PrecioCuota,{ where:{estado : true} });
+        let precioCuota : any = await AppDataSource.manager.query(`
+            SELECT precio_cuota.id, precio_cuota.fecha_desde as 'Fecha desde', precio_cuota.monto
+            FROM precio_cuota
+            where precio_cuota.estado=1
+            ORDER BY precio_cuota.fecha_desde DESC
+        `);
+
+        precioCuota.forEach((element : any) => {
+            element["Fecha desde"] = element["Fecha desde"].toISOString().split("T")[0];
+        });
 
         res.json({
             data : precioCuota
