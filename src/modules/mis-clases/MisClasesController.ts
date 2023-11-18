@@ -14,12 +14,18 @@ export class MisClasesController {
         
         let fechaHoy = (new Date()).toISOString().split("T")[0];
 
+        let claseLike : string = "";
+        if(req.query.clase){
+            claseLike = ` AND tipo_clase.descripcion LIKE '%${req.query.clase}%' `;
+        }
+
         let clases : any = await AppDataSource.manager.query(`
             SELECT clase.*, clase.horario_inicio as horario, CONCAT(usuario.nombre, " ", usuario.apellido) as profesor, tipo_clase.descripcion as clase, tipo_clase.cupo
             FROM clase
             INNER JOIN usuario ON clase.usuarioId = usuario.id
             INNER JOIN tipo_clase ON tipo_clase.id = clase.tipoClaseId
             WHERE clase.fecha >= '${fechaHoy}'
+            ${claseLike}
             ORDER BY clase.fecha ASC
         `);
 
