@@ -1,7 +1,24 @@
-# Awesome Project Build with TypeORM
+# Inicializando el backend
 
-Steps to run this project:
+### Requisitos
+Para el correcto funcionamiento del Backend debemos tener instalado NodeJs.
+Para eso descargamos NodeJs desde su pagina oficial https://nodejs.org/es
 
-1. Run `npm i` command
-2. Setup database settings inside `data-source.ts` file
-3. Run `npm start` command
+### Instalando los paquetes
+Para instalar todos los paquetes necesarios necesitamos ejecutar el siguiente comando:
+
+```sh
+npm i 
+```
+
+### Configurando las variables de entorno
+
+Debemos setear los valores de las variables de entorno que se encuentran en el archivo .env
+
+### Levantar el servicio de Backend
+
+Para que el backend entre en funcionamiento debemos ejecutar el siguiente comando en la consola:
+
+```sh
+npm start
+```
