@@ -24,4 +24,18 @@ export class RolController {
             data : rol
         })
     }
+    public static async actualizar(req : Request<any>, res : Response<any>) : Promise<void> {
+        let rolId = req.params.id;
+        let rol = await AppDataSource.manager.findOneBy(Rol,{ id: rolId });
+        if(!rol){
+            return;
+        }
+        rol.nombre = req.body.nombre;
+        rol = await AppDataSource.manager.save(rol);
+
+        res.json({
+            data : rol
+        })
+    }
+
 }

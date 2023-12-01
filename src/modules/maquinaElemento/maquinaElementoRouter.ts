@@ -1,18 +1,31 @@
 import { MaquinaElementoController } from './MaquinaElementoController';
+import { Middlewares               } from '../../middlewares/verifyToken';
 import { Router                    } from 'express';
 
 export const maquinaElementoRouter = Router();
 
-maquinaElementoRouter.get('/', (req, res) => {
-    res.json({
-        data : "Maquina Elemento route"
-    });
-});
+maquinaElementoRouter.get(
+    '/listar', 
+    Middlewares.validarRolDelEncargado, 
+    MaquinaElementoController.listar
+);
 
-maquinaElementoRouter.get('/listar', (req, res) => {
-    MaquinaElementoController.listar(req, res);
-});
+maquinaElementoRouter.post(
+    '/agregar', 
+    MaquinaElementoController.agregar
+);
 
-maquinaElementoRouter.post('/agregar', (req, res) => {
-    MaquinaElementoController.agregar(req, res);
-});
+maquinaElementoRouter.get(
+    '/:id/obtener', 
+    MaquinaElementoController.obtener
+);
+
+maquinaElementoRouter.post(
+    '/:id/editar',
+    MaquinaElementoController.editar
+);
+
+maquinaElementoRouter.get(
+    '/:id/eliminar',
+    MaquinaElementoController.eliminar
+);

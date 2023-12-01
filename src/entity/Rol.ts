@@ -1,8 +1,9 @@
-import { Column                 } from "typeorm"
+import { Column, OneToMany      } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
+import { Usuario } from "./Usuario"
 
-@Entity()
+@Entity({name: 'rol'})
 export class Rol {
 
     @PrimaryGeneratedColumn()
@@ -12,4 +13,8 @@ export class Rol {
         length: 40,
     })
     nombre!: string
+
+    @OneToMany( () => Usuario, (usuario) => usuario.rol )
+    usuarios! : Usuario[] | null
+
 }

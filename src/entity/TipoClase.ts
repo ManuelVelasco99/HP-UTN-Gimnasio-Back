@@ -1,6 +1,7 @@
-import { Column                 } from "typeorm"
+import { Column, OneToMany                 } from "typeorm"
 import { Entity                 } from "typeorm"
 import { PrimaryGeneratedColumn } from "typeorm"
+import { Clase } from "./Clase"
 
 @Entity()
 export class TipoClase {
@@ -18,4 +19,7 @@ export class TipoClase {
         unsigned : true 
     })
     cupo! : number
+
+    @OneToMany(() => Clase, (clase) => clase.tipoClase)
+    clases! : Clase[] | null
 }
